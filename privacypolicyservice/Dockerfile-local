@@ -1,0 +1,30 @@
+# Dockerfile/Docker-Compose file based on an initial version authored by Alexander Lontke (ASSE, Fall Semester 2021)
+
+FROM maven as build
+
+
+
+# Copy the Maven Wrapper and pom.xml file and install dependencies
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+
+# Optionally, if you have any settings or profiles, copy them
+# COPY settings.xml /root/.m2/
+
+# Copy the project source
+COPY src/ src/
+
+# Build the application
+RUN mvn -f pom.xml --batch-mode --update-snapshots verify -DskipTests
+
+# Start with a new base image for the final build
+FROM openjdk
+
+# Copy the built artifact from the previous image
+COPY --from=build /target/*.jar privacypolicyservice.jar
+
+# Expose the port the app runs on
+EXPOSE 8084
+
+# Run the jar file
+ENTRYPOINT ["java", "-jar", "privacypolicyservice.jar"]
