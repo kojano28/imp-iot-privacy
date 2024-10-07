@@ -13,16 +13,26 @@ services:
       - imp-network
 
   privacypolicyservice:
-    image: openjdk:17
+    build: ./PrivacyPolicyService  # Path to Dockerfile
     depends_on:
       - mongodb
-    volumes:
-      - ./data/privacypolicies/:/data/privacypolicies  # Use the same relative directory
+    ports:
+      - "8080:8080"
     environment:
-      MONGODB_URI: mongodb://mongodb-container:27017/mydb
+      MONGODB_URI: mongodb://mongodb-container:27017/privacy-policy-db
     networks:
       - imp-network
 
+  ppcrawler:
+    build: ./ppcrawler # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"
+    environment:
+      MONGODB_URI: mongodb://mongodb-container:27017/privacy-policy-db
+    networks:
+      - imp-network
 networks:
   imp-network:
     driver: bridge
