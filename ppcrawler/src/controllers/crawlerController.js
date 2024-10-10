@@ -1,35 +1,11 @@
-// src/controllers/crawlerController.js
-
-const webCrawlerService = require('../services/webCrawlerService');
-
-// Make sure the function exists
-exports.crawlPrivacyPolicy = async (req, res) => {
-    const { productName } = req.query;
-
-    if (!productName) {
-        return res.status(400).json({ message: 'Product name is required' });
-    }
-
-    try {
-        const policyUrl = await webCrawlerService.searchPrivacyPolicyOnWeb(productName);
-        res.status(200).json({ message: 'Privacy policy found', url: policyUrl });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-// src/controllers/crawlerController.js
-
 const fs = require('fs').promises;
 const path = require('path');
 const pdfParse = require('pdf-parse');
 const PrivacyPolicy = require('../models/privacyPolicyModel');
+const cheerio = require('cheerio');
 
-/**
- * Function to read PDF files from the data folder, convert them to text, and store them in MongoDB.
- * Logs the stored policies to the console.
- */
-exports.storePrivacyPolicies = async () => {
+// Core function to store privacy policies
+async function storePrivacyPolicies() {
     const directoryPath = path.join(__dirname, '../../data/privacypolicies');
 
     try {
@@ -40,42 +16,72 @@ exports.storePrivacyPolicies = async () => {
 
         for (const file of files) {
             const filePath = path.join(directoryPath, file);
+            const fileExtension = path.extname(file);
 
-            // Only process PDF files
-            if (path.extname(file) === '.pdf') {
+            if (fileExtension === '.pdf') {
                 const fileBuffer = await fs.readFile(filePath);
-
-                // Parse the PDF to extract text
                 const parsedPDF = await pdfParse(fileBuffer);
-                const fileContent = parsedPDF.text;  // Extract the text content from the PDF
+                const fileContent = parsedPDF.text;
 
-                // Remove the .pdf extension from the filename
+                // Log the extracted PDF content
+                console.log(`Extracted content from PDF ${file}:`, fileContent.substring(0, 100));  // Log first 100 chars
+
                 const deviceName = path.basename(file, '.pdf');
+                await storePolicy(deviceName, fileContent, policiesStored);
 
-                // Check if the policy already exists before storing it
-                const existingPolicy = await PrivacyPolicy.findOne({ deviceName: deviceName });
-                if (!existingPolicy) {
-                    // Store the policy in MongoDB
-                    const newPolicy = new PrivacyPolicy({
-                        deviceName: deviceName,     // Store without .pdf extension
-                        policyContent: fileContent  // Store extracted text
-                    });
+            } else if (fileExtension === '.html') {
+                const fileContent = await fs.readFile(filePath, 'utf-8');
+                const $ = cheerio.load(fileContent);
+                const htmlText = $('body').text();
 
-                    await newPolicy.save();
-                    policiesStored.push(deviceName);  // Track stored policies
+                // Log the extracted HTML content
+                console.log(`Extracted content from HTML ${file}:`, htmlText.substring(0, 100));  // Log first 100 chars
 
-                    // Log which policies are being stored
-                    console.log(`Stored policy for device: ${deviceName}`);
-                } else {
-                    console.log(`Policy for device ${deviceName} already exists, skipping.`);
-                }
+                const deviceName = path.basename(file, '.html');
+                await storePolicy(deviceName, htmlText, policiesStored);
+
             } else {
-                console.log(`Skipping non-PDF file: ${file}`);
+                console.log(`Skipping non-PDF/HTML file: ${file}`);
             }
         }
 
         console.log('Policies stored successfully:', policiesStored);
+
+        // Return the stored policies for potential use
+        return policiesStored;
     } catch (error) {
         console.error('Error storing privacy policies:', error.message);
+        throw error;  // Re-throw the error to handle it in the calling function
+    }
+}
+
+// Express route handler to store privacy policies
+exports.storePrivacyPoliciesRoute = async (req, res) => {
+    try {
+        const policiesStored = await storePrivacyPolicies();
+        res.status(200).json({ message: 'Policies stored successfully', policies: policiesStored });
+    } catch (error) {
+        res.status(500).json({ message: 'Error storing policies', error: error.message });
     }
 };
+
+// Helper function to store the policy in MongoDB if it doesn't already exist
+async function storePolicy(deviceName, policyContent, policiesStored) {
+    const existingPolicy = await PrivacyPolicy.findOne({ deviceName: deviceName });
+
+    if (!existingPolicy) {
+        const newPolicy = new PrivacyPolicy({
+            deviceName: deviceName,
+            policyContent: policyContent,
+        });
+
+        await newPolicy.save();
+        policiesStored.push(deviceName);
+        console.log(`Stored policy for device: ${deviceName}`);
+    } else {
+        console.log(`Policy for device ${deviceName} already exists, skipping.`);
+    }
+}
+
+// Export the core function for use in app.js
+exports.storePrivacyPolicies = storePrivacyPolicies;

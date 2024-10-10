@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const crawlerRoutes = require('./routes/crawlerRoutes');
-const { storePrivacyPolicies } = require('./controllers/crawlerController');  // Import the store function
+const { storePrivacyPolicies } = require('./controllers/crawlerController');  // Import the core function
 
 // Load environment variables
 dotenv.config();

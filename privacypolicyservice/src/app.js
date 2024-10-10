@@ -1,9 +1,8 @@
-// src/app.js
-
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const privacyPolicyRoutes = require('./routes/privacyPolicyRoutes');
+const dpvOntologyService = require('./services/dpvOntologyService');
 
 // Initialize environment variables
 dotenv.config();
@@ -21,6 +20,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
+
+// Load the DPV ontology once at the start of the application
+dpvOntologyService.loadDPVOntology().catch(err => {
+    console.error('Error loading DPV ontology during startup:', err);
+    process.exit(1);  // Exit the application if DPV loading fails
+});
 
 // Define routes
 app.use('/api', privacyPolicyRoutes);
