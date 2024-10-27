@@ -45,6 +45,15 @@ services:
     networks:
       - imp-network
 
+  api:
+    build: ./api # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8090:8090"
+    networks:
+      - imp-network
+
 networks:
   imp-network:
     driver: bridge
