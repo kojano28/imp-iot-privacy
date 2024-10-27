@@ -2,10 +2,12 @@ const fetch = require('node-fetch');
 
 // Function to send data to the frontend
 exports.postToHololens = async (req, res) => {
-    const dataToSend = { message: "Data from backend to hololens" };
+    //This means the whole JSON structure is in the body
+    const dataToSend = req.body;
 
     try {
-        const response = await fetch('https://c84a69d1-4eeb-42db-8c79-c4ad919feb38.mock.pstmn.io/api/receiveData', {
+        //Here comes the endpoint of the Hololens UI for sending the JSONs
+        const response = await fetch('http://localhost:3010/api/receiveData', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
