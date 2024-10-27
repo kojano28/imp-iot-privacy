@@ -2,7 +2,7 @@ const rdf = require('rdflib');
 const store = rdf.graph();  // RDF graph to hold the DPV ontology
 
 // DPV ontology URL or local file path
-const dpvOntologyUrl = 'https://github.com/w3c/dpv/blob/master/2.0/dpv/dpv.ttl';
+const dpvOntologyUrl = 'https://w3c.github.io/dpv/2.0/dpv/dpv.ttl';
 
 // DPV namespace
 const dpvNamespace = rdf.Namespace('https://w3id.org/dpv/2.0');

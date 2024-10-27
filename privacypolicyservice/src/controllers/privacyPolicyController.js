@@ -1,114 +1,149 @@
 const PrivacyPolicy = require('../models/privacyPolicyModel');
 const dpvOntologyService = require('../services/dpvOntologyService');
 const fetch = require('node-fetch');
+const fs = require('fs').promises;
+const path = require('path');
+const cheerio = require('cheerio');
 
-
-// Helper function to call Huggingface API
+// Helper function to call Hugging Face API
 async function analyzeWithHuggingface(text) {
-    if (!text) {
-        throw new Error('Input text is undefined');
-    }
-    const API_URL = 'https://api-inference.huggingface.co/models/dbmdz/bert-large-cased-finetuned-conll03-english';
+    const API_URL = 'https://api-inference.huggingface.co/models/dslim/bert-base-NER';  // Change to a more suitable model
     const API_TOKEN = process.env.HUGGINGFACE_API_KEY;
 
-    if (!text) {
-        throw new Error('Input text is undefined');
+    // Function to split the text into smaller chunks (500 tokens per chunk)
+    function splitTextIntoChunks(text, maxLength = 500) {
+        const chunks = [];
+        const words = text.split(' ');  // Split text into words
+        let currentChunk = [];
+
+        for (let word of words) {
+            if (currentChunk.join(' ').length + word.length <= maxLength) {
+                currentChunk.push(word);
+            } else {
+                chunks.push(currentChunk.join(' '));
+                currentChunk = [word];
+            }
+        }
+
+        // Add any remaining text as the last chunk
+        if (currentChunk.length > 0) {
+            chunks.push(currentChunk.join(' '));
+        }
+
+        return chunks;
     }
 
-    const inputText = String(text);
+    // Split the text into chunks
+    const textChunks = splitTextIntoChunks(text, 512);  // Use 512 tokens max for BERT-based models
 
-    // Log inputText after assignment
-    console.log('inputText:', inputText);
+    // Send each chunk to Hugging Face API and aggregate results
+    let nlpResults = [];
+    for (let chunk of textChunks) {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${API_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                inputs: chunk,  // Send the chunk instead of the full text
+            }),
+        });
 
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${API_TOKEN}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            inputs: inputText,
-        }),
-    });
+        const result = await response.json();
+        if (result.error) {
+            throw new Error(`Error from Hugging Face API: ${result.error}`);
+        }
 
-    const result = await response.json();
-    console.log('Hugging Face API Result:', result);
+        nlpResults = [...nlpResults, ...result];  // Aggregate results from all chunks
+    }
 
-    return result;
+    return nlpResults;
 }
-
-
-
 // Function to map NLP result to DPV ontology fields using extracted DPV terms
 function mapToDPVOntology(nlpResult, dpvFields) {
-    const ontologyMapping = {
+    const mappedDpv = {
         dataCategories: [],
         processingActivities: [],
         legalBases: []
     };
 
-    // Assuming nlpResult contains an 'entities' array
-    if (Array.isArray(nlpResult.entities)) {
-        nlpResult.entities.forEach(entity => {
-            // Compare the extracted entities with DPV categories
-            if (dpvFields.personalDataCategories.includes(entity.word)) {
-                ontologyMapping.dataCategories.push(entity.word);
-            }
-            if (dpvFields.processingActivities.includes(entity.word)) {
-                ontologyMapping.processingActivities.push(entity.word);
-            }
-            if (dpvFields.legalBases.includes(entity.word)) {
-                ontologyMapping.legalBases.push(entity.word);
-            }
-        });
-    } else {
-        console.error("Unexpected NLP result structure:", nlpResult);
-    }
+    nlpResult.forEach(entity => {
+        const entityWord = entity.word.toLowerCase().trim();
 
-    return ontologyMapping;
+        // Try a more flexible matching by checking for partial matches and synonyms
+        if (dpvFields.personalDataCategories.some(category => entityWord.includes(category.toLowerCase()))) {
+            mappedDpv.dataCategories.push(entityWord);
+        }
+        if (dpvFields.processingActivities.some(activity => entityWord.includes(activity.toLowerCase()))) {
+            mappedDpv.processingActivities.push(entityWord);
+        }
+        if (dpvFields.legalBases.some(base => entityWord.includes(base.toLowerCase()))) {
+            mappedDpv.legalBases.push(entityWord);
+        }
+    });
+
+    return mappedDpv;
 }
 
-// Controller: Get Privacy Policy by Device Name and analyze it with Huggingface and DPV ontology matching
+
+// Controller: Get Privacy Policy by Device Name and analyze it with Hugging Face and DPV ontology matching
 exports.getPrivacyPolicyByDeviceName = async (req, res) => {
     const { deviceName } = req.query;
 
     try {
-        const policy = await PrivacyPolicy.findOne({ deviceName: deviceName });
-        if (!policy) {
-            return res.status(404).json({ message: 'Privacy policy not found for device: ' + deviceName });
+        // Fetch the privacy policy from the database
+        let policy = await PrivacyPolicy.findOne({ deviceName: deviceName });
+        let policyContent;
+
+        if (!policy || !policy.policyContent) {
+            // Policy not found in DB, read directly from the file system
+            console.log(`Policy content not found in DB for device: ${deviceName}, reading from file...`);
+
+            const filePath = path.join(__dirname, '../../data/privacypolicies', `${deviceName}.html`);
+            try {
+                const fileContent = await fs.readFile(filePath, 'utf-8');
+                const $ = cheerio.load(fileContent);
+                policyContent = $('body').text().trim();
+
+                if (!policyContent) {
+                    throw new Error('No content found in the file');
+                }
+                console.log(`Read content from file ${filePath}:`, policyContent.substring(0, 100)); // Log first 100 chars
+
+            } catch (fileError) {
+                console.error(`Error reading file for device ${deviceName}:`, fileError.message);
+                return res.status(500).json({ message: `Error reading file for device ${deviceName}`, error: fileError.message });
+            }
+        } else {
+            // Use the policy from the DB
+            policyContent = policy.policyContent;
+            console.log('Policy content found in DB:', policyContent.substring(0, 100)); // Log first 100 chars
         }
 
-        // Check if policy content is a string
-        const policyContent = String(policy.policyContent);  // Ensure it's a string
-        console.log('Policy Content Type:', typeof policyContent);
 
-        // Analyze policy content using Huggingface NLP model
-        // Ensure that policy.policyContent is passed to the function
-        const nlpResult = await analyzeWithHuggingface(policy.policyContent);
+        // Analyze policy content using Hugging Face NLP model
+        const nlpResult = await analyzeWithHuggingface(policyContent);
 
-        console.log('NER Output:', nlpResult);
-
-        if (nlpResult.error) {
-            console.error("Unexpected NLP result structure:", nlpResult);
-            return res.status(500).json({ message: 'NLP analysis failed: ' + nlpResult.error });
-        }
-
-        // Get DPV fields
+        // Get DPV fields from the ontology service
         const dpvFields = await dpvOntologyService.getDPVFields();
 
-        // Map the result to DPV ontology using the extracted fields
+        // Map NLP results to DPV ontology
         const dpvMapping = mapToDPVOntology(nlpResult, dpvFields);
 
-        console.log("Mapped DPV Values:");
-        console.log("Data Categories:", dpvMapping.dataCategories);
-        console.log("Processing Activities:", dpvMapping.processingActivities);
-        console.log("Legal Bases:", dpvMapping.legalBases);
+        // Log the filled DPV parameters
+        console.log('Filled DPV Parameters:');
+        console.log('Data Categories:', dpvMapping.dataCategories);
+        console.log('Processing Activities:', dpvMapping.processingActivities);
+        console.log('Legal Bases:', dpvMapping.legalBases);
 
         res.json({
             deviceName: deviceName,
-            policyContent: policy.policyContent,
-            dpvMapping: dpvMapping,
+            policyContent: policyContent,
+            nlpResult: nlpResult,
+            dpvMapping: dpvMapping,  // Return mapped DPV results
         });
+
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ message: 'Server error: ' + error.message });

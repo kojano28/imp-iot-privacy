@@ -83,5 +83,25 @@ async function storePolicy(deviceName, policyContent, policiesStored) {
     }
 }
 
+// src/controllers/crawlerController.js
+
+const webCrawlerService = require('../services/webCrawlerService');
+
+// Define crawlPrivacyPolicy function
+exports.crawlPrivacyPolicy = async (req, res) => {
+    const { productName } = req.query;
+
+    if (!productName) {
+        return res.status(400).json({ message: 'Product name is required' });
+    }
+
+    try {
+        const policyUrl = await webCrawlerService.searchPrivacyPolicyOnWeb(productName);
+        res.status(200).json({ message: 'Privacy policy found', url: policyUrl });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Export the core function for use in app.js
 exports.storePrivacyPolicies = storePrivacyPolicies;
