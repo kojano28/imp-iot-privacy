@@ -1,0 +1,111 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    {
+      "dpv": "https://w3id.org/dpv#"
+    }
+  ],
+  "title": "Simple IoT Camera",
+  "description": "A simple IoT camera with basic functionality such as viewing properties, taking snapshots, and detecting motion.",
+  "securityDefinitions": {
+    "basic_sc": {
+      "scheme": "basic",
+      "in": "header"
+    }
+  },
+  "security": ["basic_sc"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "description": "Current status of the camera (on, off, standby).",
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "https://example.com/camera/properties/status",
+          "contentType": "application/json",
+          "op": "readproperty"
+        }
+      ]
+    },
+    "brightness": {
+      "type": "number",
+      "description": "Current brightness setting of the camera.",
+      "minimum": 0,
+      "maximum": 100,
+      "readOnly": false,
+      "forms": [
+        {
+          "href": "https://example.com/camera/properties/brightness",
+          "contentType": "application/json",
+          "op": ["readproperty", "writeproperty"]
+        }
+      ]
+    }
+  },
+  "actions": {
+    "takeSnapshot": {
+      "description": "Takes a snapshot and returns the image URL.",
+      "output": {
+        "type": "string",
+        "description": "URL of the captured snapshot.",
+        "dpv:PersonalData": {
+          "dpv:hasPersonalData": [
+            {
+              "dpv:DataSubject": "Guests",
+              "dpv:PersonalDataType": "Image"
+            }
+          ]
+        },
+        "dpv:hasPurpose": "dpv:Security",
+        "dpv:hasLegalBasis": [
+          "dpv:LegitimateInterest",
+          "dpv:Consent"
+        ]
+      },
+      "forms": [
+        {
+          "href": "https://example.com/camera/actions/takeSnapshot",
+          "contentType": "application/json",
+          "op": "invokeaction",
+          "dpv:Processing": {
+            "dpv:hasProcessing": [
+              "dpv:Collect",
+              "dpv:Store",
+              "dpv:Transmit"
+            ]
+          },
+          "dpv:DataController": "AirbnbOwner",
+          "dpv:DataProcessor": "CloudServiceProvider"
+        }
+      ]
+    },
+    "togglePower": {
+      "description": "Toggles the camera's power state (on/off).",
+      "forms": [
+        {
+          "href": "https://example.com/camera/actions/togglePower",
+          "contentType": "application/json",
+          "op": "invokeaction"
+        }
+      ]
+    }
+  },
+  "events": {
+    "motionDetected": {
+      "description": "Triggered when the camera detects motion.",
+      "data": {
+        "type": "boolean",
+        "dpv:hasPersonalData": {
+          "dpv:hasPersonalData": false
+        }
+      },
+      "forms": [
+        {
+          "href": "https://example.com/camera/events/motionDetected",
+          "contentType": "application/json",
+          "op": "subscribeevent"
+        }
+      ]
+    }
+  }
+}

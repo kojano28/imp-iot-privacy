@@ -1,0 +1,85 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix dpv-legal: <https://www.w3id.org/dpv/dpv-legal#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+# Data Subject
+ex:TpCameraUser rdf:type dpv:DataSubject ;
+    rdfs:label "User of tpCamera" .
+
+# Personal Data Categories
+ex:IdentifyingInformation rdf:type dpv:PersonalData ;
+    rdfs:label "Identifying Information" ;
+    dpv:hasDataSubject ex:TpCameraUser ;
+    dpv:textEvidence "Identifying information such as your name, address, and phone numbers." .
+
+ex:SubscriptionPaymentInformation rdf:type dpv:PersonalData ;
+    rdfs:label "Subscription Payment Information" ;
+    dpv:hasDataSubject ex:TpCameraUser ;
+    dpv:textEvidence "Subscription payment information." .
+
+ex:LocationInformation rdf:type dpv:PersonalData ;
+    rdfs:label "Location Information" ;
+    dpv:hasDataSubject ex:TpCameraUser ;
+    dpv:textEvidence "Your location information." .
+
+ex:ContentOfCommunications rdf:type dpv:PersonalData ;
+    rdfs:label "Content of Communications" ;
+    dpv:hasDataSubject ex:TpCameraUser ;
+    dpv:textEvidence "Content of live chats, posts, and emails to us." .
+
+# Legal Bases
+ex:LegitimateInterest rdf:type dpv:LegalBasis ;
+    rdfs:label "Legitimate Interest" ;
+    dpv:subCategory dpv-legal:LegitimateInterestOfController ;
+    dpv:textEvidence "We may share your Personal Data internally and externally with suppliers, advisors, or Partners for our legitimate business purposes." .
+
+ex:Consent rdf:type dpv:LegalBasis ;
+    rdfs:label "Explicitly Expressed Consent" ;
+    dpv:subCategory dpv-legal:ExplicitlyExpressedConsent ;
+    dpv:textEvidence "By using our services, you are accepting the practices described in this Privacy Policy." .
+
+ex:ContractPerformance rdf:type dpv:LegalBasis ;
+    rdfs:label "Contract Performance" ;
+    dpv:subCategory dpv-legal:ContractPerformance ;
+    dpv:textEvidence "We need payment details to fulfill your subscription and provide the services." .
+
+ex:InformedConsent rdf:type dpv:LegalBasis ;
+    rdfs:label "Informed Consent" ;
+    dpv:subCategory dpv-legal:InformedConsent ;
+    dpv:textEvidence "By using location-based services, you agree to the collection of location information." .
+
+# Processing Activities
+ex:ServiceMaintenance rdf:type dpv:Process ;
+    dpv:hasProcessing dpv:Use ;
+    dpv:hasDataController ex:TP_Link ;
+    dpv:hasPersonalData ex:IdentifyingInformation ;
+    dpv:hasLegalBasis ex:LegitimateInterest ;
+    rdfs:label "Data Processing for Service Maintenance" ;
+    dpv:textEvidence "Download, stream, view, or use content on a device, or through a service or application on a device." .
+
+ex:AccountManagement rdf:type dpv:Process ;
+    dpv:hasProcessing dpv:Manage ;
+    dpv:hasDataController ex:TP_Link ;
+    dpv:hasPersonalData ex:IdentifyingInformation, ex:SubscriptionPaymentInformation ;
+    dpv:hasLegalBasis ex:Consent ;
+    rdfs:label "Account Management" ;
+    dpv:textEvidence "Provide personal data in Your Account." .
+
+ex:ContentUpload rdf:type dpv:Process ;
+    dpv:hasProcessing dpv:Upload ;
+    dpv:hasDataController ex:TP_Link ;
+    dpv:hasPersonalData ex:LocationInformation ;
+    dpv:hasLegalBasis ex:InformedConsent ;
+    rdfs:label "Content Upload" ;
+    dpv:textEvidence "Upload or stream images, videos, or other files to the cloud Services." .
+
+ex:DeviceMonitoring rdf:type dpv:Process ;
+    dpv:hasProcessing dpv:Monitor ;
+    dpv:hasDataController ex:TP_Link ;
+    dpv:hasPersonalData ex:ContentOfCommunications ;
+    dpv:hasLegalBasis ex:LegitimateInterest ;
+    rdfs:label "Device Monitoring" ;
+    dpv:textEvidence "Monitoring of device connections and blocking access to malicious websites." .

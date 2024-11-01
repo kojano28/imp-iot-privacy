@@ -54,6 +54,18 @@ services:
     networks:
       - imp-network
 
+
+  dataservice:
+    build: ./dataservice # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8084:8084"
+    environment:
+      MONGODB_URI: mongodb://mongodb-container:27017/privacy-policy-db
+    networks:
+      - imp-network
+
 networks:
   imp-network:
     driver: bridge
