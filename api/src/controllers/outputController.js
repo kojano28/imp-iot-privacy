@@ -3,39 +3,18 @@ let dataForHololens = null;
 
 // Function to store data for the HoloLens
 exports.storeDataForHololens = (req, res) => {
-    // Log the incoming data for storage
-    console.log("Storing data for HoloLens:", req.body);
+    // Log the incoming data for storage with full detail
+    console.log("Storing data for HoloLens:", JSON.stringify(req.body, null, 2));
 
     // Store the incoming data in memory
     dataForHololens = req.body;
 
-    // Log confirmation of data storage
-    console.log("Data stored successfully for HoloLens:", dataForHololens);
+    // Log confirmation of data storage with full detail
+    console.log("Data stored successfully for HoloLens:");
 
     res.json({ status: 'Data stored for HoloLens' });
-
-    // Initialize dataForHololens with example data for testing purposes (can be removed in production)
-    dataForHololens = {
-        "action": {
-            "humanReadableAction": "MuteState",
-            "actionId": "action-001",
-            "actionType": "mitigation",
-            "dpvMapping": {
-                "dpv:Process": "ex:AnalyzeSpeech",
-                "dpv:hasProcessing": "dpv:Use",
-                "dpv:hasDataController": "ex:ACMM",
-                "dpv:hasPersonalData": [
-                    {
-                        "dpv:PersonalDataCategory": "AudioData",
-                    }
-                ],
-                "dpv:hasLegalBasis": {
-                    "type": "dpv:Consent",
-                }
-            }
-        }
-    };
 };
+
 
 // Function for HoloLens to retrieve stored data via GET
 exports.getDataForHololens = (req, res) => {
@@ -44,7 +23,7 @@ exports.getDataForHololens = (req, res) => {
 
     if (dataForHololens) {
         // Log the data being sent to HoloLens
-        console.log("Sending stored data to HoloLens:", dataForHololens);
+        console.log("Sending stored data to HoloLens:");
 
         res.json(dataForHololens); // Send the stored data to the HoloLens
         dataForHololens = null;    // Clear the data after sending

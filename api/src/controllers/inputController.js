@@ -1,6 +1,6 @@
 exports.receiveData = (req, res) => {
     // Log the incoming request body for debugging
-    console.log("Received request body:", req.body);
+    console.log("Received selected action from hololens");
 
     // Extract actionId and optional parameters directly from req.body
     const { actionId, ...optionalParams } = req.body || {};
