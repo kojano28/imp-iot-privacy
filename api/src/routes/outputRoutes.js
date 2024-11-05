@@ -8,4 +8,7 @@ router.post('/sendToHololens', outputController.storeDataForHololens);
 // GET route for HoloLens to fetch the stored data
 router.get('/fetchDataForHololens', outputController.getDataForHololens);
 
+// GET route for HoloLens to poll for completed actions.
+//router.get('/completedActions', outputController.completeActions);
+
 module.exports = router;

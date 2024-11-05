@@ -14,7 +14,8 @@
     "mongoose": "^5.13.8",
     "dotenv": "^10.0.0",
     "rdflib": "^2.2.8",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "axios": "^0.21.1"
   }
 
 }
