@@ -5,22 +5,22 @@ const axios = require('axios');
 
 exports.analyzeDevice = async (req, res) => {
     try {
-        const { DATASERVICE_URL } = req.body;
+        const { dataservice_url } = req.body;
 
-        if (!DATASERVICE_URL) {
-            return res.status(400).json({ error: 'DATASERVICE_URL is required' });
+        if (!dataservice_url) {
+            return res.status(400).json({ error: 'dataservice_url is required' });
         }
 
-        // Pass the DATASERVICE_URL dynamically to thingDescriptionService
-        const td = await thingDescriptionService.getThingDescription(DATASERVICE_URL);
-        const privacyPolicy = await thingDescriptionService.getPrivacyPolicy(DATASERVICE_URL);
+        // Pass the dataservice_url dynamically to thingDescriptionService
+        const td = await thingDescriptionService.getThingDescription(dataservice_url);
+        const privacyPolicy = await thingDescriptionService.getPrivacyPolicy(dataservice_url);
 
         const analysis = await analysisService.analyze(td, privacyPolicy);
 
         // Add deviceIP to each action in the analysis
         const analysisWithDATASERVICE_URL = analysis.map(item => ({
             ...item,
-            DATASERVICE_URL: DATASERVICE_URL
+            dataservice_url: dataservice_url
         }));
         // Construct the result JSON
         const result = {
