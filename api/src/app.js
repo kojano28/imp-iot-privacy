@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 // Define routes
 app.use('/api/output', outputRoutes);
 app.use('/api/input', inputRoutes);
-app.use('/api/iot', iotRoutes);
+//app.use('/api/iot', iotRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 8090;
