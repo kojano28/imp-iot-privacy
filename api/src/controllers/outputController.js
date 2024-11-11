@@ -26,7 +26,7 @@ exports.getDataForHololens = (req, res) => {
         console.log("Sending stored data to HoloLens:");
 
         res.json(dataForHololens); // Send the stored data to the HoloLens
-        //dataForHololens = null;    // Clear the data after sending
+        dataForHololens = null;    // Clear the data after sending
 
         // Log confirmation that data has been cleared after sending
         console.log("Data for HoloLens has been cleared after sending.");
