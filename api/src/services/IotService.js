@@ -1,18 +1,18 @@
 // IotService.js
 
-let dataForHololens = {};  // Assume this is the in-memory storage for action data
+let mainDataStorage = {};  // Persistent in-memory storage for action data
 
-// Function to store data for HoloLens (could be called from a different controller if needed)
+// store data in the main storage (could be called from a different controller if needed)
 exports.storeDataForHololens = (data) => {
-    dataForHololens = data;
-    console.log('Data stored successfully for HoloLens');
+    mainDataStorage = data;
+    console.log('Data stored successfully in main storage');
 };
 
-// Function to get action details based on actionId and humanReadableAction
+// get action details based on actionId and humanReadableAction
 exports.getActionDetails = (actionId, humanReadableAction) => {
-    const analysisArray = dataForHololens.analysis || [];
+    const analysisArray = mainDataStorage.analysis || [];
 
-    // Find the action matching actionId and humanReadableAction
+    // action matching actionId and humanReadableAction
     const actionItem = analysisArray.find(item =>
         item.action.actionId === actionId &&
         item.action.humanReadableAction === humanReadableAction
@@ -21,7 +21,7 @@ exports.getActionDetails = (actionId, humanReadableAction) => {
     if (!actionItem) return null;
 
     // Extract the relevant form details
-    const form = actionItem.action.forms[0];  // Assuming the first form is the one we need
+    const form = actionItem.action.forms[0];
     return {
         href: form.href,
         op: form.op,
