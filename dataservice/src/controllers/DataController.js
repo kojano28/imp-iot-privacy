@@ -1,12 +1,14 @@
-// DataController.js
 const path = require('path');
 
+// Controller for handling the privacy policy request
 exports.getPrivacyPolicy = (req, res) => {
-    const policyPath = path.join(__dirname, '../data/privacypolicies/01_camera.ttl');
-    res.sendFile(policyPath);
+    const privacyPolicyPath = path.join(__dirname, '../data/privacypolicies/01_camera.ttl');
+    res.sendFile(privacyPolicyPath, err => {
+        if (err) {
+            console.error('Error serving Privacy Policy:', err);
+            res.status(500).send('Internal Server Error');
+        }
+    });
 };
 
-exports.getThingDescription = (req, res) => {
-    const tdPath = path.join(__dirname, '../data/TD/camera.json');
-    res.sendFile(tdPath);
-};
+// Optional: Add more handlers if needed
