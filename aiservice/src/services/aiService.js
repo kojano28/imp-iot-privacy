@@ -1,4 +1,4 @@
-// src/services/fileStorageService.js
+// src/services/aiService.js
 
 const fs = require('fs');
 const path = require('path');
