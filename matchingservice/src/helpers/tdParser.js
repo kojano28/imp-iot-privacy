@@ -1,5 +1,3 @@
-// tdParser.js
-
 /**
  * Function to extract actions from a Thing Description (TD)
  * @param {Object} td - The Thing Description object
@@ -10,6 +8,8 @@ function extractActions(td) {
         return [];
     }
 
+    const title = td.title || 'Unknown Title'; // Default to 'Unknown Title' if not provided
+
     return Object.keys(td.actions).map((actionName, index) => {
         const actionDetails = td.actions[actionName];
         // Format index to always be a three-digit number, starting with 001
@@ -19,6 +19,7 @@ function extractActions(td) {
             action: {
                 humanReadableAction: actionName,
                 actionId: actionId,
+                title: title, // Include the title of the TD
                 description: actionDetails.description || '',
                 output: actionDetails.output || {},
                 forms: actionDetails.forms ? actionDetails.forms.map(form => ({
