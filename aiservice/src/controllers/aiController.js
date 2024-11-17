@@ -16,15 +16,18 @@ exports.generateCurlCommand = async (action) => {
         const prompt = createPrompt(action);
 
         // Use OpenAI's completion endpoint
-        const response = await client.completions.create({
-            model: 'text-davinci-003', // Ensure this is the model you want to use
-            prompt: prompt,
+        const response = await client.chat.completions.create({
+            model: 'gpt-3.5-turbo', // Ensure this is the model you want to use
+            messages: [
+                { role: 'system', content: 'You are a helpful assistant that generates privacy-preserving CURL commands.' },
+                { role: 'user', content: prompt },
+            ],
             max_tokens: 150,
             temperature: 0.7,
         });
 
         // Extract and return the CURL command
-        return response.choices[0].text.trim();
+        return response.choices[0].message.content.trim();
     } catch (error) {
         console.error('Error interacting with OpenAI API:', error.message);
         throw error;
