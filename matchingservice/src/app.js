@@ -1,7 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const matchingRoutes = require('./routes/matchingRoutes');
+const { startScanning } = require('./services/networkScanner');
 
+// Start the network scanning process
+startScanning();
 
 // Initialize environment variables
 dotenv.config();
