@@ -1,5 +1,5 @@
 // IotController.js
-
+/*
 const axios = require('axios');
 
 // Function to send a POST request to the device using action details
@@ -23,4 +23,4 @@ exports.sendToDevice = async (actionDetails) => {
         console.error('Error communicating with device:', error);
         throw new Error('Device communication failed');
     }
-};
+}*/

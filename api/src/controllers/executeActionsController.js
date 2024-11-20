@@ -1,7 +1,7 @@
 // InputController.js
 
-const IotService = require('../services/IotService');
-const IotController = require('./IotController');
+//const IotService = require('../services/IotService');
+//const IotController = require('./IotController');
 
 // Handle incoming POST request from the frontend
 exports.handleFrontendPost = async (req, res) => {
@@ -9,7 +9,7 @@ exports.handleFrontendPost = async (req, res) => {
         // Log the incoming request body for debugging
         console.log('Received request body:', req.body);
 
-        const { actionId, humanReadableAction, DATASERVICE_URL } = req.body;
+        const { actionId, humanReadableAction } = req.body;
 
         // Validate required fields
         if (!actionId || !humanReadableAction) {
@@ -17,14 +17,14 @@ exports.handleFrontendPost = async (req, res) => {
         }
 
         // Retrieve action details using the IotService
-        const actionDetails = IotService.getActionDetails(actionId, humanReadableAction);
+        //const actionDetails = IotService.getActionDetails(actionId, humanReadableAction);
 
         if (!actionDetails) {
             return res.status(404).json({ error: 'Action not found' });
         }
 
         // Send the action details to the IotController for device interaction
-        const deviceResponse = await IotController.sendToDevice(actionDetails);
+        //const deviceResponse = await IotController.sendToDevice(actionDetails);
 
         // Respond back to the frontend with the result
         res.json({ status: 'Action processed successfully', deviceResponse });

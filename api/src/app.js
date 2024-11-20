@@ -1,9 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
-const outputRoutes = require('./routes/outputRoutes');
-const inputRoutes = require('./routes/inputRoutes');
-const iotRoutes = require('./routes/iotRoutes');
+const getActionsRoutes = require('./routes/getActionsRoutes');
+const executeActionsRoutes = require('./routes/executeActionsRoutes');
+const checkActionsStatusRoutes = require('./routes/executeActionsRoutes');
+const objectDetectionRoutes = require('./routes/objectDetectionRoutes');
 
 
 // Initialize environment variables
@@ -23,9 +24,11 @@ app.use(bodyParser.json());
 // - checkActionStatus (GET from hololens to api service to check action status) - loop Holo
 
 
-app.use('/api/output', outputRoutes);
-app.use('/api/input', inputRoutes);
-//app.use('/api/iot', iotRoutes);
+app.use('/api/getActions', getActionsRoutes);
+app.use('/api/executeActions', executeActionsRoutes);
+app.use('/api/objectDetection', objectDetectionRoutes);
+app.use('/api/checkActionsStatus', checkActionsStatusRoutes);
+
 
 // Start the server
 const PORT = process.env.PORT || 8090;

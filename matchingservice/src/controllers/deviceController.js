@@ -32,7 +32,7 @@ exports.analyzeDevice = async (req, res) => {
 
         // Send the JSON to the API service at http://localhost:8090
         try {
-            await axios.post('http://api:8090/api/output/sendToHololens', result);
+            await axios.post('http://api:8090/api/getActions/sendToHololens', result);
             console.log('JSON successfully sent to the API service.');
         } catch (postError) {
             console.error('Error sending JSON to the API service:', postError.message);
