@@ -9,6 +9,6 @@ const deviceProcessor = require('../services/deviceProcessor');
 
 
 // Route to initiate the get the processed json from the cache  process with DATASERVICE_URL
-router.post('/analyze-device', deviceProcessor.getTDactions);
+router.get('/analyze-device', deviceProcessor.getTDactions);
 
 module.exports = router;
