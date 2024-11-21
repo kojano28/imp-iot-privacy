@@ -1,6 +1,6 @@
-// deviceProcessor.js
 const thingDescriptionService = require('../services/thingDescriptionService');
 const analysisService = require('../services/analysisService');
+const axios = require('axios'); // Import axios for HTTP requests
 
 // In-memory cache for storing analysis results
 const analysisCache = new Map();
@@ -55,7 +55,6 @@ const onDeviceFound = async (deviceInfo) => {
     }
 };
 
-// Function to retrieve analysis results from the cache
 const getTDactions = async (req, res) => {
     try {
         const { dataservice_url } = req.body;
@@ -74,11 +73,42 @@ const getTDactions = async (req, res) => {
         // Extract the actions
         const tdActions = cachedResult.analysis.map(item => item.action);
 
+        // Prepare data to send to the Hololens
+        const dataToSend = {
+            dataservice_url,
+            actions: tdActions
+        };
+
+        // Send the data to the Hololens
+        try {
+            await sendToHololens(dataToSend);
+            console.log(`Send actions from  ${dataservice_url}: to HoloLens`);
+        } catch (error) {
+            console.error('Failed to send data to Hololens:', error.message);
+            return res.status(500).json({ error: 'Failed to send data to Hololens' });
+        }
+
         // Return the actions to the client
         res.json({ dataservice_url, actions: tdActions });
     } catch (error) {
         console.error('Error retrieving TD actions from cache:', error.message);
         res.status(500).json({ error: error.message });
+    }
+};
+
+const sendToHololens = async (data, retries = 3) => {
+    const hololensEndpoint = 'http://api:8090/api/getActions/sendToHololens'; // Replace with actual Hololens IP and endpoint
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            const response = await axios.post(hololensEndpoint, data);
+            console.log('JSON successfully sent to the Hololens:', response.data);
+            return;
+        } catch (error) {
+            console.error(`Attempt ${attempt} - Error sending JSON to the Hololens:`, error.message);
+            if (attempt === retries) throw error;
+            // Wait before retrying
+            await new Promise(res => setTimeout(res, 1000 * attempt));
+        }
     }
 };
 
