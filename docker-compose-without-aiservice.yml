@@ -1,0 +1,69 @@
+#version: "4.29.0"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/privacypolicies/:/data/privacypolicies  # Mount privacy policies directory from relative path
+      - ./data/db:/data/db                             # Generic relative path for MongoDB data persistence
+    networks:
+      - imp-network
+
+#  privacypolicyservice:
+#    build: ./PrivacyPolicyService  # Path to Dockerfile
+#    depends_on:
+#      - mongodb
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      MONGODB_URI: mongodb://mongodb-container:27017/privacy-policy-db
+#    networks:
+#      - imp-network
+
+  matchingservice:
+    build: ./matchingservice # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8082:8082"
+    environment:
+      MONGODB_URI: mongodb://mongodb-container:27017/privacy-policy-db
+    networks:
+      - imp-network
+
+  api:
+    build: ./api # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8090:8090"
+    networks:
+      - imp-network
+
+
+  dataservice:
+    build: ./dataservice # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8084:8084"
+    environment:
+      MONGODB_URI: mongodb://mongodb-container:27017/privacy-policy-db
+    networks:
+      - imp-network
+
+  objectdetection:
+    build: ./api # Path to Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "8091:8091"
+    networks:
+      - imp-network
+
+networks:
+  imp-network:
+    driver: bridge
