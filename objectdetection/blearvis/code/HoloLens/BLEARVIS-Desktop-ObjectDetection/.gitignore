@@ -1,0 +1,10 @@
+**/checkpoints/
+**/*.weights
+**/detector_yolov3/
+.vs_code/
+.vscode/
+.DS_Store
+**.DS_Store
+**/*.DS_Store
+**/__pycache__/
+.idea/

@@ -1,0 +1,15 @@
+version: "3.3"
+
+services:
+
+
+  dataservice:
+    build: ./dataservice # Path to Dockerfile
+    ports:
+      - "8084:8084"
+    networks:
+      - imp-network
+
+networks:
+  imp-network:
+    driver: bridge
