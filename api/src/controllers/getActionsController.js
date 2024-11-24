@@ -1,5 +1,5 @@
 // Primary storage for the data intended for later processes and HoloLens
-let mainDataStorage = null;
+let mainDataStorage = {};
 // Temporary storage specifically for HoloLens retrieval
 let dataForHololens = null;
 
@@ -16,6 +16,11 @@ exports.storeDataForHololens = (req, res) => {
     console.log("Data stored successfully. Temporary copy made for HoloLens.");
 
     res.json({ status: 'Data stored and temporary copy created for HoloLens' });
+};
+
+// Expose a getter function for mainDataStorage
+exports.getMainDataStorage = () => {
+    return mainDataStorage;
 };
 
 // Function for HoloLens to retrieve stored data via GET

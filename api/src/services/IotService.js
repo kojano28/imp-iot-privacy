@@ -1,31 +1,38 @@
-// IotService.js
+const { getMainDataStorage } = require('../controllers/getActionsController');
 
-let mainDataStorage = {};  // Persistent in-memory storage for action data
-
-// store data in the main storage (could be called from a different controller if needed)
-exports.storeDataForHololens = (data) => {
-    mainDataStorage = data;
-    console.log('Data stored successfully in main storage');
-};
-
-// get action details based on actionId and humanReadableAction
+// Get action details based on actionId and humanReadableAction
 exports.getActionDetails = (actionId, humanReadableAction) => {
-    const analysisArray = mainDataStorage.analysis || [];
+    const mainDataStorage = getMainDataStorage(); // Retrieve mainDataStorage
 
-    // action matching actionId and humanReadableAction
-    const actionItem = analysisArray.find(item =>
-        item.action.actionId === actionId &&
-        item.action.humanReadableAction === humanReadableAction
+    if (!mainDataStorage || !mainDataStorage.actions) {
+        console.error("Main data storage is empty or not initialized.");
+        return null;
+    }
+
+    const actionsArray = mainDataStorage.actions;
+
+    // Find the matching action
+    const actionItem = actionsArray.find(item =>
+        item.actionId === actionId &&
+        item.humanReadableAction === humanReadableAction
     );
 
-    if (!actionItem) return null;
+    if (!actionItem) {
+        console.error(`Action not found for actionId: ${actionId}, humanReadableAction: ${humanReadableAction}`);
+        return null;
+    }
 
-    // Extract the relevant form details
-    const form = actionItem.action.forms[0];
+    // Validate and extract forms
+    const form = actionItem.forms && actionItem.forms[0];
+    if (!form) {
+        console.error(`No forms found for actionId: ${actionId}, humanReadableAction: ${humanReadableAction}`);
+        return null;
+    }
+
     return {
         href: form.href,
         op: form.op,
         contentType: form.contentType,
-        actionId
+        actionId,
     };
 };

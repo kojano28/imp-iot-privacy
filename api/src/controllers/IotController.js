@@ -1,5 +1,3 @@
-// IotController.js
-/*
 const axios = require('axios');
 
 // Function to send a POST request to the device using action details
@@ -7,6 +5,16 @@ exports.sendToDevice = async (actionDetails) => {
     try {
         const { href, op, contentType, actionId } = actionDetails;
 
+        // Log a message instead of sending a request
+        console.log(`Action would be sent:`, {
+            href,
+            operation: op,
+            contentType,
+            actionId
+        });
+
+        // Uncomment the following code to re-enable actual device communication
+        /*
         // Configure the request payload for the device
         const payload = { actionId, operation: op };
 
@@ -19,8 +27,12 @@ exports.sendToDevice = async (actionDetails) => {
 
         // Return device response data
         return response.data;
+        */
+
+        // Placeholder return value
+        return { message: 'Action logged instead of being sent.' };
     } catch (error) {
-        console.error('Error communicating with device:', error);
-        throw new Error('Device communication failed');
+        console.error('Error (simulation of communication):', error);
+        throw new Error('Device communication simulated as failed');
     }
-}*/
+};
