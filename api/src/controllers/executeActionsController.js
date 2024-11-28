@@ -23,11 +23,16 @@ exports.handleFrontendPost = async (req, res) => {
 
         console.log("Action details retrieved:", actionDetails);
 
-        // Send the action details to IoTController
-        const deviceResponse = await IoTController.sendToDevice(actionDetails);
-        console.log("Device response:", deviceResponse);
+        // Respond to the frontend immediately
+        res.json({ status: "Action received and processing started" });
 
-        res.json({ status: "Action processed successfully", deviceResponse });
+        // Process the action asynchronously
+        try {
+            const deviceResponse = await IoTController.sendToDevice(actionDetails);
+            console.log("Device response:", deviceResponse);
+        } catch (deviceError) {
+            console.error("Error sending to device:", deviceError);
+        }
     } catch (error) {
         console.error("Error handling frontend POST request:", error);
         res.status(500).json({ error: "Internal server error" });
