@@ -1,38 +1,55 @@
+const completedActionsStore = require('../services/completedActionsStore');
 const axios = require('axios');
 
-// Function to send a POST request to the device using action details
 exports.sendToDevice = async (actionDetails) => {
     try {
-        const { href, op, contentType, actionId } = actionDetails;
+        // Destructure actionDetails, defaulting mthd to 'POST' if it is not provided
+        const { href, op, contentType, actionId, mthd = 'POST' } = actionDetails;
 
-        // Log a message instead of sending a request
-        console.log(`Action would be sent:`, {
+        console.log(`Preparing to send action:`, {
             href,
             operation: op,
+            method: mthd,
             contentType,
             actionId
         });
 
-        // Uncomment the following code to re-enable actual device communication
-        /*
-        // Configure the request payload for the device
-        const payload = { actionId, operation: op };
-
-        // Send POST request to the device
-        const response = await axios.post(href, payload, {
+        // Configure the request payload and options
+        const options = {
+            method: mthd, // Use the method, defaulting to POST if missing
+            url: href,
             headers: {
                 'Content-Type': contentType
-            }
-        });
+            },
+            data: { actionId, operation: op } // Payload for methods like POST/PUT
+        };
 
-        // Return device response data
+        // Adjust options for methods that don't require a payload
+        if (mthd === 'GET' || mthd === 'DELETE') {
+            delete options.data; // Remove data for GET or DELETE
+        }
+
+        // Send the request to the device
+        const response = await axios(options);
+
+        // Save the response to the store
+        completedActionsStore[actionId] = {
+            status: 'success',
+            response: response.data
+        };
+
+        console.log('Device response:', response.data);
         return response.data;
-        */
 
-        // Placeholder return value
-        return { message: 'Action logged instead of being sent.' };
     } catch (error) {
-        console.error('Error (simulation of communication):', error);
-        throw new Error('Device communication simulated as failed');
+        console.error('Error during device communication:', error.message || error);
+
+        // Save the error to the store
+        completedActionsStore[actionId] = {
+            status: 'failure',
+            error: error.message
+        };
+
+        throw new Error('Device communication failed');
     }
 };

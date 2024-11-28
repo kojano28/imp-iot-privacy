@@ -33,6 +33,7 @@ exports.getActionDetails = (actionId, humanReadableAction) => {
         href: form.href,
         op: form.op,
         contentType: form.contentType,
+        //mthd: form.mthd,
         actionId,
     };
 };
