@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const getActionsRoutes = require('./routes/getActionsRoutes');
 const executeActionsRoutes = require('./routes/executeActionsRoutes');
-const checkActionsStatusRoutes = require('./routes/executeActionsRoutes');
+const checkActionsStatusRoutes = require('./routes/checkActionsStatusRoutes');
 const objectDetectionRoutes = require('./routes/objectDetectionRoutes');
 
 

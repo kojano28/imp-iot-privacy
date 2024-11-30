@@ -83,7 +83,7 @@
       "description": "Toggles the camera's power state (on/off).",
       "forms": [
         {
-          "href": "https://example.com/camera/actions/togglePower",
+          "href": "https://httpbin.org/status/200",
           "contentType": "application/json",
           "op": "invokeaction"
         }

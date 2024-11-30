@@ -3,53 +3,64 @@ const axios = require('axios');
 
 exports.sendToDevice = async (actionDetails) => {
     try {
-        // Destructure actionDetails, defaulting mthd to 'POST' if it is not provided
-        const { href, op, contentType, actionId, mthd = 'POST' } = actionDetails;
-
-        console.log(`Preparing to send action:`, {
+        const {
             href,
-            operation: op,
-            method: mthd,
-            contentType,
-            actionId
-        });
+            op,
+            contentType = 'application/json',
+            actionId,
+            mthd = 'POST',
+        } = actionDetails;
 
-        // Configure the request payload and options
+        console.log(`Preparing to send request:`, { href, method: mthd, contentType, actionId });
+
+        // Construct the device payload (excluding actionId)
+        const devicePayload = { operation: op };
+
         const options = {
-            method: mthd, // Use the method, defaulting to POST if missing
+            method: mthd,
             url: href,
-            headers: {
-                'Content-Type': contentType
-            },
-            data: { actionId, operation: op } // Payload for methods like POST/PUT
+            headers: { 'Content-Type': contentType },
+            data: mthd === 'POST' || mthd === 'PUT' ? devicePayload : null,
         };
-
-        // Adjust options for methods that don't require a payload
-        if (mthd === 'GET' || mthd === 'DELETE') {
-            delete options.data; // Remove data for GET or DELETE
-        }
 
         // Send the request to the device
         const response = await axios(options);
 
-        // Save the response to the store
+        // Check the status code range for success (2xx)
+        const status = response.status >= 200 && response.status < 300 ? 'success' : 'failure';
+
+        // Store the result in completedActionsStore
         completedActionsStore[actionId] = {
-            status: 'success',
-            response: response.data
+            status,
+            response: {
+                statusCode: response.status,
+                data: response.data || 'No content',
+            },
         };
 
-        console.log('Device response:', response.data);
-        return response.data;
+        console.log(`Action stored with status: ${status}`);
+        return { actionId, status };
 
     } catch (error) {
-        console.error('Error during device communication:', error.message || error);
+        console.error('Error during communication:', error.message || error);
 
-        // Save the error to the store
+        // Check if the error has a response (e.g., 4xx, 5xx)
+        const status = 'failure';
+        const errorCode = error.response?.status || 'unknown';
+
         completedActionsStore[actionId] = {
-            status: 'failure',
-            error: error.message
+            status,
+            response: {
+                statusCode: response.status,
+                data: response.data || 'No content',
+            },
+            actionId, // Include the action ID
+            title: actionDetails.title, // Add title from frontend
+            humanReadableAction: actionDetails.humanReadableAction, // Add human-readable message from frontend
         };
 
-        throw new Error('Device communication failed');
+
+        console.log(`Action stored with status: ${status}`);
+        return { actionId, status };
     }
 };
