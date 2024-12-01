@@ -5,7 +5,7 @@ exports.handleFrontendPost = async (req, res) => {
     try {
         console.log("Received frontend POST request:", req.body);
 
-        const { actionId, humanReadableAction } = req.body;
+        const { actionId, humanReadableAction, title } = req.body;
 
         if (!actionId || !humanReadableAction) {
             console.error("Validation failed: Missing actionId or humanReadableAction");
@@ -13,11 +13,11 @@ exports.handleFrontendPost = async (req, res) => {
         }
 
         // Retrieve action details from mainDataStorage
-        console.log("Retrieving action details for:", { actionId, humanReadableAction });
-        const actionDetails = IoTService.getActionDetails(actionId, humanReadableAction);
+        console.log("Retrieving action details for:", { actionId, humanReadableAction, title });
+        const actionDetails = IoTService.getActionDetails(actionId, humanReadableAction, title);
 
         if (!actionDetails) {
-            console.error("No action details found for:", { actionId, humanReadableAction });
+            console.error("No action details found for:", { actionId, humanReadableAction, title });
             return res.status(404).json({ error: "Action not found" });
         }
 
