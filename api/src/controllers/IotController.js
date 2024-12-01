@@ -8,6 +8,8 @@ exports.sendToDevice = async (actionDetails) => {
             op,
             contentType = 'application/json',
             actionId,
+            title,
+            humanReadableAction,
             mthd = 'POST',
         } = actionDetails;
 
@@ -30,12 +32,22 @@ exports.sendToDevice = async (actionDetails) => {
         const status = response.status >= 200 && response.status < 300 ? 'success' : 'failure';
 
         // Store the result in completedActionsStore
+        console.log("Storing action:", {
+            actionId,
+            title,
+            humanReadableAction,
+            status,
+        });
+
         completedActionsStore[actionId] = {
             status,
             response: {
                 statusCode: response.status,
                 data: response.data || 'No content',
             },
+            actionId,
+            title,
+            humanReadableAction,
         };
 
         console.log(`Action stored with status: ${status}`);
@@ -51,16 +63,16 @@ exports.sendToDevice = async (actionDetails) => {
         completedActionsStore[actionId] = {
             status,
             response: {
-                statusCode: response.status,
-                data: response.data || 'No content',
+                statusCode: errorCode,
+                data: error.response?.data || 'No content',
             },
-            actionId, // Include the action ID
-            title: actionDetails.title, // Add title from frontend
-            humanReadableAction: actionDetails.humanReadableAction, // Add human-readable message from frontend
+            actionId,
+            title: actionDetails.title, // Ensure title is included
+            humanReadableAction: actionDetails.humanReadableAction, // Ensure human-readable message is included
         };
-
 
         console.log(`Action stored with status: ${status}`);
         return { actionId, status };
     }
 };
+

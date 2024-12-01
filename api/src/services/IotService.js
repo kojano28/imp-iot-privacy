@@ -1,7 +1,7 @@
 const { getMainDataStorage } = require('../controllers/getActionsController');
 
 // Get action details based on actionId and humanReadableAction
-exports.getActionDetails = (actionId, humanReadableAction) => {
+exports.getActionDetails = (actionId, humanReadableAction, title) => {
     const mainDataStorage = getMainDataStorage(); // Retrieve mainDataStorage
 
     if (!mainDataStorage || !mainDataStorage.actions) {
@@ -14,7 +14,8 @@ exports.getActionDetails = (actionId, humanReadableAction) => {
     // Find the matching action
     const actionItem = actionsArray.find(item =>
         item.actionId === actionId &&
-        item.humanReadableAction === humanReadableAction
+        item.humanReadableAction === humanReadableAction &&
+        item.title === title
     );
 
     if (!actionItem) {
@@ -35,5 +36,7 @@ exports.getActionDetails = (actionId, humanReadableAction) => {
         contentType: form.contentType,
         //mthd: form.mthd,
         actionId,
+        title,
+        humanReadableAction
     };
 };
