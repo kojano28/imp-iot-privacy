@@ -22,7 +22,7 @@ app.get('/.well-known/wot-thing-description', (req, res) => {
 });
 
 // Serve Camera Privacy Policy
-app.get('/privacy', (req, res) => {
+app.get('/api/privacypolicy', (req, res) => {
     const privacyPolicyPath = path.join(__dirname, '../data/privacypolicies/01_camera.ttl');
     res.sendFile(privacyPolicyPath, err => {
         if (err) {

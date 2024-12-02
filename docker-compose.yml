@@ -23,14 +23,14 @@ services:
 #    networks:
 #      - imp-network
 
-  aiservice:
-    build: ./aiservice # Path to the Dockerfile
-    ports:
-      - "8081:8081" # Expose the service on port 8081
-    networks:
-      - imp-network
-    env_file:
-      - ./aiservice/.env # Specify the path to the .env file
+ # aiservice:
+ #   build: ./aiservice # Path to the Dockerfile
+ #   ports:
+ #     - "8081:8081" # Expose the service on port 8081
+ #   networks:
+ #     - imp-network
+ #   env_file:
+#      - ./aiservice/.env # Specify the path to the .env file
 
   matchingservice:
     build: ./matchingservice # Path to Dockerfile

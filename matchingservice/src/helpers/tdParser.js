@@ -8,17 +8,18 @@ function extractActions(td) {
         return [];
     }
 
-    const title = td.title || 'Unknown Title'; // Default to 'Unknown Title' if not provided
+    const title = td.title || 'UnknownDevice'; // Default to 'UnknownDevice' if not provided
+    const uniquePrefix = title.replace(/\s+/g, '_').toLowerCase(); // Create a unique prefix from the TD's title
 
     return Object.keys(td.actions).map((actionName, index) => {
         const actionDetails = td.actions[actionName];
-        // Format index to always be a three-digit number, starting with 001
-        const actionId = `action-${String(index + 1).padStart(3, '0')}`;
+        // Format actionId to include the unique prefix and a three-digit index
+        const actionId = `${uniquePrefix}-action-${String(index + 1).padStart(2, '0')}`;
 
         return {
             action: {
                 humanReadableAction: actionName,
-                actionId: actionId,
+                actionId: actionId, // Globally unique action ID
                 title: title, // Include the title of the TD
                 description: actionDetails.description || '',
                 output: actionDetails.output || {},

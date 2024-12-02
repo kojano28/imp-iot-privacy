@@ -1,44 +1,99 @@
 const completedActionsStore = require('../services/completedActionsStore');
 const axios = require('axios');
+const DigestClient = require('http-digest-auth');
+const digestClient = new DigestClient('hololens', 'your_password');
 
+const response = await digestClient.request(href, {
+    method,
+    headers: { 'Content-Type': contentType },
+    data,
+});
 exports.sendToDevice = async (actionDetails) => {
     try {
         const {
             href,
-            op,
             contentType,
             actionId,
             title,
             humanReadableAction,
-            methodName,
         } = actionDetails;
 
-        console.log(`Preparing to send request:`, { href, method: mthd, contentType, actionId });
+        console.log(`Preparing to send request:`, { href, contentType, actionId });
 
-        // Construct the device payload (excluding actionId)
-        const devicePayload = { operation: op };
-
-        const options = {
-            method: methodName,
-            url: href,
-            headers: { 'Content-Type': contentType },
-            data: methodName === 'POST' || methodName === 'PUT' ? devicePayload : null,
+        // Hardcoded mappings for specific hrefs to corresponding actions
+        const curlMapping = {
+            "http://192.168.1.64/ISAPI/Streaming/channels/101-muteAudio": {
+                method: "PUT",
+                contentType: "application/xml",
+                data: `
+                <?xml version="1.0" encoding="UTF-8"?>
+                <StreamingChannel>
+                    <id>101</id>
+                    <Audio>
+                        <enabled>false</enabled>
+                    </Audio>
+                </StreamingChannel>
+                `,
+                requiresDigest: true, // Indicate Digest Authentication is required
+            },
+            "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/1-stopRecording": {
+                method: "POST",
+                contentType: "application/xml",
+                data: `
+                <?xml version="1.0" encoding="UTF-8"?>
+                <ManualRecordStop>
+                    <id>1</id>
+                </ManualRecordStop>
+                `,
+                requiresDigest: true,
+            },
+            "http://192.168.1.64/ISAPI/Streaming/channels/101-turnOff": {
+                method: "PUT",
+                contentType: "application/xml",
+                data: `
+                <?xml version="1.0" encoding="UTF-8"?>
+                <StreamingChannel>
+                    <id>101</id>
+                    <enabled>false</enabled>
+                </StreamingChannel>
+                `,
+                requiresDigest: true,
+            },
+            "http://192.168.1.101/api/ZylXTWF6CC6Wxh-HMWKNPPbV7n8DTNLNnibDhuCm/lights/4/state-hueLampOnOff": {
+                method: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    on: false, // Turn off the Hue Lamp
+                }),
+                requiresDigest: false, // Digest Authentication not required
+            },
         };
 
-        // Send the request to the device
-        const response = await axios(options);
+        // Map href to a hardcoded action
+        const actionKey = `${href}-${humanReadableAction}`;
+        if (!curlMapping[actionKey]) {
+            throw new Error(`No hardcoded curl mapping found for href: ${href} and action: ${humanReadableAction}`);
+        }
 
-        // Check the status code range for success (2xx)
+        const { method, data, requiresDigest } = curlMapping[actionKey];
+
+        // Prepare the request options
+        const requestOptions = {
+            method,
+            url: href,
+            headers: { 'Content-Type': contentType || curlMapping[actionKey].contentType },
+            data: method === 'POST' || method === 'PUT' ? data.trim() : null,
+        };
+
+        // Use Digest Authentication or standard Axios request based on the mapping
+        const response = requiresDigest
+            ? await digestAuth.request(requestOptions) // Use Digest Authentication
+            : await axios(requestOptions); // Standard Axios request
+
+        // Determine success based on status code
         const status = response.status >= 200 && response.status < 300 ? 'success' : 'failure';
 
         // Store the result in completedActionsStore
-        console.log("Storing action:", {
-            actionId,
-            title,
-            humanReadableAction,
-            status,
-        });
-
         completedActionsStore[actionId] = {
             status,
             response: {
@@ -56,7 +111,7 @@ exports.sendToDevice = async (actionDetails) => {
     } catch (error) {
         console.error('Error during communication:', error.message || error);
 
-        // Check if the error has a response (e.g., 4xx, 5xx)
+        // Handle error responses
         const status = 'failure';
         const errorCode = error.response?.status || 'unknown';
 
@@ -67,12 +122,11 @@ exports.sendToDevice = async (actionDetails) => {
                 data: error.response?.data || 'No content',
             },
             actionId,
-            title: actionDetails.title, // Ensure title is included
-            humanReadableAction: actionDetails.humanReadableAction, // Ensure human-readable message is included
+            title,
+            humanReadableAction,
         };
 
         console.log(`Action stored with status: ${status}`);
         return { actionId, status };
     }
 };
-

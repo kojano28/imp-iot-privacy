@@ -98,7 +98,7 @@
       },
       "forms": [
         {
-          "href": "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/{trackId}",
+          "href": "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/1",
           "contentType": "application/xml",
           "op": "invokeaction",
           "htv:methodName": "POST",

@@ -22,7 +22,7 @@ app.get('/.well-known/wot-thing-description', (req, res) => {
 });
 
 // Serve Hue Lamp Privacy Policy
-app.get('/privacy', (req, res) => {
+app.get('/api/privacypolicy', (req, res) => {
     const privacyPolicyPath = path.join(__dirname, '../data/privacypolicies/02_huelamp.ttl');
     res.sendFile(privacyPolicyPath, err => {
         if (err) {
