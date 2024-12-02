@@ -1,26 +1,15 @@
 const completedActionsStore = require('../services/completedActionsStore');
 const axios = require('axios');
-const DigestClient = require('http-digest-auth');
-const digestClient = new DigestClient('hololens', 'your_password');
+const { makeDigestRequest } = require('../services/digestAuth');
 
-const response = await digestClient.request(href, {
-    method,
-    headers: { 'Content-Type': contentType },
-    data,
-});
+// Function to send an action to a device
 exports.sendToDevice = async (actionDetails) => {
     try {
-        const {
-            href,
-            contentType,
-            actionId,
-            title,
-            humanReadableAction,
-        } = actionDetails;
+        const { href, contentType, actionId, title, humanReadableAction } = actionDetails;
 
         console.log(`Preparing to send request:`, { href, contentType, actionId });
 
-        // Hardcoded mappings for specific hrefs to corresponding actions
+        // Hardcoded mappings for specific actions
         const curlMapping = {
             "http://192.168.1.64/ISAPI/Streaming/channels/101-muteAudio": {
                 method: "PUT",
@@ -34,7 +23,7 @@ exports.sendToDevice = async (actionDetails) => {
                     </Audio>
                 </StreamingChannel>
                 `,
-                requiresDigest: true, // Indicate Digest Authentication is required
+                requiresDigest: true, // Digest Authentication required
             },
             "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/1-stopRecording": {
                 method: "POST",
@@ -69,28 +58,36 @@ exports.sendToDevice = async (actionDetails) => {
             },
         };
 
-        // Map href to a hardcoded action
+        // Resolve action based on the mapping
         const actionKey = `${href}-${humanReadableAction}`;
-        if (!curlMapping[actionKey]) {
+        const mappedAction = curlMapping[actionKey];
+        if (!mappedAction) {
             throw new Error(`No hardcoded curl mapping found for href: ${href} and action: ${humanReadableAction}`);
         }
 
-        const { method, data, requiresDigest } = curlMapping[actionKey];
+        const { method, data, requiresDigest } = mappedAction;
 
-        // Prepare the request options
-        const requestOptions = {
-            method,
-            url: href,
-            headers: { 'Content-Type': contentType || curlMapping[actionKey].contentType },
-            data: method === 'POST' || method === 'PUT' ? data.trim() : null,
-        };
+        let response;
+        if (requiresDigest) {
+            // Use Digest Authentication for this action
+            response = await makeDigestRequest({
+                url: href,
+                method,
+                username: 'admin', // Replace with actual username
+                password: 'pogo', // Replace with actual password
+                data: data.trim(),
+            });
+        } else {
+            // Use a standard Axios request for this action
+            response = await axios({
+                method,
+                url: href,
+                headers: { 'Content-Type': contentType || mappedAction.contentType },
+                data: method === 'POST' || method === 'PUT' ? data.trim() : null,
+            });
+        }
 
-        // Use Digest Authentication or standard Axios request based on the mapping
-        const response = requiresDigest
-            ? await digestAuth.request(requestOptions) // Use Digest Authentication
-            : await axios(requestOptions); // Standard Axios request
-
-        // Determine success based on status code
+        // Determine success based on the HTTP response
         const status = response.status >= 200 && response.status < 300 ? 'success' : 'failure';
 
         // Store the result in completedActionsStore
@@ -107,7 +104,6 @@ exports.sendToDevice = async (actionDetails) => {
 
         console.log(`Action stored with status: ${status}`);
         return { actionId, status };
-
     } catch (error) {
         console.error('Error during communication:', error.message || error);
 

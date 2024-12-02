@@ -64,15 +64,6 @@ services:
     networks:
       - imp-network
 
-  objectdetection:
-    build: ./api # Path to Dockerfile
-    depends_on:
-      - mongodb
-    ports:
-      - "8091:8091"
-    networks:
-      - imp-network
-
 networks:
   imp-network:
     driver: bridge
