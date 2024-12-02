@@ -43,7 +43,7 @@
     }
   },
   "actions": {
-    "takeSnapshot": {
+    "muteAudio": {
       "description": "Takes a snapshot and returns the image URL.",
       "output": {
         "type": "string",
@@ -64,9 +64,10 @@
       },
       "forms": [
         {
-          "href": "https://example.com/camera/actions/takeSnapshot",
-          "contentType": "application/json",
+          "href": "http://192.168.1.64/ISAPI/Streaming/channels/101",
+          "contentType": "application/xml",
           "op": "invokeaction",
+          "htv:methodName":"PUT",
           "dpv:Processing": {
             "dpv:hasProcessing": [
               "dpv:Collect",
@@ -79,31 +80,57 @@
         }
       ]
     },
-    "togglePower": {
-      "description": "Toggles the camera's power state (on/off).",
-      "forms": [
-        {
-          "href": "https://httpbin.org/status/200",
-          "contentType": "application/json",
-          "op": "invokeaction"
-        }
-      ]
-    }
-  },
-  "events": {
-    "motionDetected": {
-      "description": "Triggered when the camera detects motion.",
-      "data": {
-        "type": "boolean",
-        "dpv:hasPersonalData": {
-          "dpv:hasPersonalData": false
-        }
+    "stopRecording": {
+      "description": "Stops the manual recording on the specified track.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "trackId": {
+            "type": "integer",
+            "description": "The ID of the track to stop recording."
+          }
+        },
+        "required": ["trackId"]
+      },
+      "output": {
+        "type": "string",
+        "description": "Confirmation message for stopping the recording."
       },
       "forms": [
         {
-          "href": "https://example.com/camera/events/motionDetected",
-          "contentType": "application/json",
-          "op": "subscribeevent"
+          "href": "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/{trackId}",
+          "contentType": "application/xml",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "data": {
+            "ManualRecordStop": {
+              "id": "{trackId}"
+            }
+          },
+          "curlExample": "curl --digest --user \"hololens:your_password\" --request POST 'http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/{trackId}' --header 'Content-Type: application/xml' --data '<?xml version=\"1.0\" encoding=\"UTF-8\"?><ManualRecordStop><id>{trackId}</id></ManualRecordStop>'"
+        }
+      ]
+    },
+    "turnOffCamera": {
+      "description": "Stops the camera from streaming or powers it down (if supported).",
+      "input": null,
+      "output": {
+        "type": "string",
+        "description": "Confirmation message indicating the camera has been turned off or streaming stopped."
+      },
+      "forms": [
+        {
+          "href": "http://192.168.1.64/ISAPI/Streaming/channels/101",
+          "contentType": "application/xml",
+          "op": "invokeaction",
+          "htv:methodName": "PUT",
+          "data": {
+            "StreamingChannel": {
+              "id": 101,
+              "enabled": false
+            }
+          },
+          "curlExample": "curl --digest --user \"hololens:your_password\" --request PUT 'http://192.168.1.64/ISAPI/Streaming/channels/101' --header 'Content-Type: application/xml' --data '<?xml version=\"1.0\" encoding=\"UTF-8\"?><StreamingChannel><id>101</id><enabled>false</enabled></StreamingChannel>'"
         }
       ]
     }

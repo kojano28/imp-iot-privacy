@@ -6,11 +6,11 @@ exports.sendToDevice = async (actionDetails) => {
         const {
             href,
             op,
-            contentType = 'application/json',
+            contentType,
             actionId,
             title,
             humanReadableAction,
-            mthd = 'POST',
+            methodName,
         } = actionDetails;
 
         console.log(`Preparing to send request:`, { href, method: mthd, contentType, actionId });
@@ -19,10 +19,10 @@ exports.sendToDevice = async (actionDetails) => {
         const devicePayload = { operation: op };
 
         const options = {
-            method: mthd,
+            method: methodName,
             url: href,
             headers: { 'Content-Type': contentType },
-            data: mthd === 'POST' || mthd === 'PUT' ? devicePayload : null,
+            data: methodName === 'POST' || methodName === 'PUT' ? devicePayload : null,
         };
 
         // Send the request to the device

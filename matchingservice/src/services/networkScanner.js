@@ -1,7 +1,7 @@
 const axios = require('axios');
 const os = require('os');
 const { onDeviceFound } = require('./deviceProcessor'); // Make sure to import the onDeviceFound function
-const commonPorts = [80, 8080, 443, 5683, 3000, 8000, 8084]; // Common ports to scan
+const commonPorts = [80, 8080, 443, 5683, 3000, 4000, 8000, 8084]; // Common ports to scan
 const scanInterval = 20000; // 20 seconds
 
 // Function to scan the local network and discover devices

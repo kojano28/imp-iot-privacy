@@ -34,7 +34,7 @@ exports.getActionDetails = (actionId, humanReadableAction, title) => {
         href: form.href,
         op: form.op,
         contentType: form.contentType,
-        //mthd: form.mthd,
+        methodName: form.methodName,
         actionId,
         title,
         humanReadableAction
