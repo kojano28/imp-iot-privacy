@@ -44,15 +44,15 @@
   },
   "actions": {
     "muteAudio": {
-      "description": "Takes a snapshot and returns the image URL.",
+      "description": "Mute the audio recording of the camera",
       "output": {
         "type": "string",
-        "description": "URL of the captured snapshot.",
+        "description": "Url of audio recording api",
         "dpv:PersonalData": {
           "dpv:hasPersonalData": [
             {
               "dpv:DataSubject": "Guests",
-              "dpv:PersonalDataType": "Image"
+              "dpv:PersonalDataType": "Audio"
             }
           ]
         },
@@ -112,7 +112,7 @@
       ]
     },
     "turnOffCamera": {
-      "description": "Stops the camera from streaming or powers it down (if supported).",
+      "description": "Turns off the camera",
       "input": null,
       "output": {
         "type": "string",

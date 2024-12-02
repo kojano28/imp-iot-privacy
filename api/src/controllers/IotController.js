@@ -11,7 +11,7 @@ exports.sendToDevice = async (actionDetails) => {
 
         // Hardcoded mappings for specific actions
         const curlMapping = {
-            "http://192.168.1.64/ISAPI/Streaming/channels/101-muteAudio": {
+            "http://192.168.1.64/ISAPI/Streaming/channels/101": {
                 method: "PUT",
                 contentType: "application/xml",
                 data: `
@@ -25,7 +25,7 @@ exports.sendToDevice = async (actionDetails) => {
                 `,
                 requiresDigest: true, // Digest Authentication required
             },
-            "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/1-stopRecording": {
+            "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/1": {
                 method: "POST",
                 contentType: "application/xml",
                 data: `
@@ -36,7 +36,7 @@ exports.sendToDevice = async (actionDetails) => {
                 `,
                 requiresDigest: true,
             },
-            "http://192.168.1.64/ISAPI/Streaming/channels/101-turnOff": {
+            "http://192.168.1.64/ISAPI/Streaming/channels/101": {
                 method: "PUT",
                 contentType: "application/xml",
                 data: `
@@ -48,7 +48,7 @@ exports.sendToDevice = async (actionDetails) => {
                 `,
                 requiresDigest: true,
             },
-            "http://192.168.1.101/api/ZylXTWF6CC6Wxh-HMWKNPPbV7n8DTNLNnibDhuCm/lights/4/state-hueLampOnOff": {
+            "http://192.168.1.101/api/ZylXTWF6CC6Wxh-HMWKNPPbV7n8DTNLNnibDhuCm/lights/4/state": {
                 method: "PUT",
                 contentType: "application/json",
                 data: JSON.stringify({
@@ -74,7 +74,7 @@ exports.sendToDevice = async (actionDetails) => {
                 url: href,
                 method,
                 username: 'admin', // Replace with actual username
-                password: 'pogo', // Replace with actual password
+                password: 'Bradnheiss2022', // Replace with actual password
                 data: data.trim(),
             });
         } else {
