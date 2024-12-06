@@ -59,39 +59,50 @@ const getTDactions = async (req, res) => {
     try {
         const { dataservice_url } = req.body;
 
-        if (!dataservice_url) {
-            return res.status(400).json({ error: 'dataservice_url is required' });
+        if (!Array.isArray(dataservice_url) || dataservice_url.length === 0) {
+            return res.status(400).json({ error: 'dataservice_url must be a non-empty array' });
         }
 
-        // Retrieve the cached result
-        const cachedResult = analysisCache.get(dataservice_url);
+        const results = await Promise.all(dataservice_url.map(async (url) => {
+            try {
+                // Retrieve the cached result for the given URL
+                const cachedResult = analysisCache.get(url);
 
-        if (!cachedResult) {
-            return res.status(404).json({ error: 'Analysis not found for the given dataservice_url' });
-        }
+                if (!cachedResult) {
+                    console.warn(`Analysis not found for the URL: ${url}`);
+                    return { dataservice_url: url, error: 'Analysis not found' };
+                }
 
-        // Extract the actions
-        const tdActions = cachedResult.analysis.map(item => item.action);
+                // Extract the actions from the cached result
+                const tdActions = cachedResult.analysis.map(item => item.action);
 
-        // Prepare data to send to the Hololens
-        const dataToSend = {
-            dataservice_url,
-            actions: tdActions
+                return { dataservice_url: url, actions: tdActions };
+            } catch (error) {
+                console.error(`Error processing URL ${url}:`, error.message);
+                return { dataservice_url: url, error: error.message };
+            }
+        }));
+
+        // Combine all actions into a single response
+        const mergedResults = {
+            analysis: results.flatMap(result =>
+                result.actions ? result.actions.map(action => ({ ...action, dataservice_url: result.dataservice_url })) : []
+            )
         };
 
-        // Send the data to the Hololens
+        // Send the merged results to the Hololens
         try {
-            await sendToHololens(dataToSend);
-            console.log(`Send actions from  ${dataservice_url}: to HoloLens`);
+            await sendToHololens(mergedResults);
+            console.log(`Successfully sent actions for all dataservice URLs to HoloLens`);
         } catch (error) {
             console.error('Failed to send data to Hololens:', error.message);
             return res.status(500).json({ error: 'Failed to send data to Hololens' });
         }
 
-        // Return the actions to the client
-        res.json({ dataservice_url, actions: tdActions });
+        // Return the merged actions to the client
+        res.json(mergedResults);
     } catch (error) {
-        console.error('Error retrieving TD actions from cache:', error.message);
+        console.error('Error processing TD actions:', error.message);
         res.status(500).json({ error: error.message });
     }
 };
@@ -111,5 +122,6 @@ const sendToHololens = async (data, retries = 3) => {
         }
     }
 };
+
 
 module.exports = { onDeviceFound, getTDactions };
