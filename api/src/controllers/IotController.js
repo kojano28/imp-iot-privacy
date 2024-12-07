@@ -9,18 +9,31 @@ exports.sendToDevice = async (actionDetails) => {
 
         console.log(`Preparing to send request: ${actionId}, ${humanReadableAction}`);
 
-        // Select the adapter based on href or device type
+// Select the adapter based on href or device type
         const adapter = DeviceAdapters.getAdapter(href);
         if (!adapter) {
             throw new Error(`No adapter found for href: ${href}`);
         }
 
-        // Delegate request handling to the selected adapter
-        const response = await adapter.sendAction({
-            href,
-            contentType,
-            actionId,
-        });
+// Determine the specific method to call based on the adapter type
+        let response;
+        if (typeof adapter.sendActionHue === 'function') {
+            // If the adapter is a HueLampAdapter
+            response = await adapter.sendActionHue({
+                href,
+                contentType,
+                actionId,
+            });
+        } else if (typeof adapter.sendAction === 'function') {
+            // For other adapters that use sendAction
+            response = await adapter.sendAction({
+                href,
+                contentType,
+                actionId,
+            });
+        } else {
+            throw new Error(`Adapter for href: ${href} does not support a valid action method.`);
+        }
 
         // Determine if the response is JSON or XML
         const contentTypeHeader = response.headers['content-type'] || '';

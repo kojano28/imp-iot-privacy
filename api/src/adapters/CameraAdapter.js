@@ -53,28 +53,51 @@ class CameraAdapter {
 
         const { method, contentType, data, requiresDigest } = config;
 
+        // Log the complete configuration for debugging
+        console.log(`Preparing to send request:`);
+        console.log(`- URL: ${href}`);
+        console.log(`- Method: ${method}`);
+        console.log(`- Content-Type: ${contentType}`);
+        console.log(`- Data: ${data ? JSON.stringify(data) : 'None'}`);
+        console.log(`- Requires Digest Authentication: ${requiresDigest}`);
+
         if (requiresDigest) {
             // Use Digest Authentication
             const username = process.env.CAMERA_USERNAME; // From .env
             const password = process.env.CAMERA_PASSWORD; // From .env
 
-            return await makeDigestRequest({
+            console.log(`- Authentication: Digest`);
+            console.log(`- Username: ${username}`);
+            console.log(`- Password: [REDACTED]`); // Don't log sensitive details in production
+
+            const digestRequestConfig = {
                 url: href,
                 method,
                 username,
                 password,
-                data: data.trim(),
-            });
+                headers: { 'Content-Type': contentType },
+                data: data?.trim(),
+            };
+
+            console.log(`Digest Request Configuration:`, digestRequestConfig);
+
+            return await makeDigestRequest(digestRequestConfig);
         } else {
             // Standard request
-            return await axios({
+            console.log(`- Authentication: None`);
+            const axiosRequestConfig = {
                 method,
                 url: href,
                 headers: { 'Content-Type': contentType },
-                data: method === 'POST' || method === 'PUT' ? data.trim() : null,
-            });
+                data: method === 'POST' || method === 'PUT' ? data?.trim() : null,
+            };
+
+            console.log(`Axios Request Configuration:`, axiosRequestConfig);
+
+            return await axios(axiosRequestConfig);
         }
     }
+
 }
 
 module.exports = CameraAdapter;

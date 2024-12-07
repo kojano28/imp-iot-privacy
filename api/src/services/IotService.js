@@ -1,15 +1,15 @@
 const { getMainDataStorage } = require('../controllers/getActionsController');
 
-// Get action details based on actionId and humanReadableAction
+// Get action details based on actionId, humanReadableAction, and title
 exports.getActionDetails = (actionId, humanReadableAction, title) => {
     const mainDataStorage = getMainDataStorage(); // Retrieve mainDataStorage
 
-    if (!mainDataStorage || !mainDataStorage.actions) {
-        console.error("Main data storage is empty or not initialized.");
+    if (!mainDataStorage || !mainDataStorage.analysis) {
+        console.error("Main data storage is empty or not properly structured.");
         return null;
     }
 
-    const actionsArray = mainDataStorage.actions;
+    const actionsArray = mainDataStorage.analysis; // Updated to use `analysis`
 
     // Find the matching action
     const actionItem = actionsArray.find(item =>
@@ -30,6 +30,7 @@ exports.getActionDetails = (actionId, humanReadableAction, title) => {
         return null;
     }
 
+    // Return the required details
     return {
         href: form.href,
         op: form.op,

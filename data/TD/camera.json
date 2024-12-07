@@ -5,8 +5,8 @@
       "dpv": "https://w3id.org/dpv#"
     }
   ],
-  "title": "Simple IoT Camera",
-  "description": "A simple IoT camera with basic functionality such as viewing properties, taking snapshots, and detecting motion.",
+  "title": "HikvisionCamera",
+  "description": "A simple Hikvision camera with basic functionality such as viewing properties, taking snapshots, and detecting motion.",
   "securityDefinitions": {
     "basic_sc": {
       "scheme": "basic",

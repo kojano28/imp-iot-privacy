@@ -11,8 +11,14 @@ class HueLampAdapter {
         }
     }
 
-    async sendAction({ href, contentType }) {
+    async sendActionHue({ href, contentType }) {
         const url = href.replace('IP', this.ip).replace('APIKEY', this.apiKey);
+
+        // Log the request details
+        console.log('Sending action with the following details:');
+        console.log('URL:', url);
+        console.log('Headers:', { 'Content-Type': contentType });
+        console.log('Data:', JSON.stringify({ on: false }));
 
         return await axios({
             method: 'PUT',
