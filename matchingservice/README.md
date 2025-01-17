@@ -87,13 +87,17 @@ matchingservice/
 
 ## Example Request
 
-To trigger analysis, send a POST request to `http://localhost:8085/api/analyze-device` with `DATASERVICE_URL` in the request body:
+To trigger analysis, send a POST request to `http://localhost:8082/api/analyze-device` with `dataservice_url` in the request body:
+
+Hier noch wo dass man die URLs findet.
 
 ```bash
-curl -X POST http://localhost:8085/api/analyze-device \
-  -H "Content-Type: application/json" \
-  -d '{
-        "DATASERVICE_URL": "http://dataservice:8084"
+curl --location 'http://localhost:8082/api/analyze-device' \
+--header 'Content-Type: application/json' \
+--data '{
+        "dataservice_url": [
+        "http://172.19.0.3:3000",
+        "http://172.19.0.3:4000"]
       }'
 ```
 
