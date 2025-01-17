@@ -96,6 +96,8 @@ The `api` service provides the following endpoints:
                 - `status` (string): The status of the action (e.g., "completed").
         - **500 Internal Server Error**:
             - `error` (string): Error message indicating a failure to retrieve completed actions.
+
+
 ## Environment Variables
 
 `api` uses a `.env` file to define its environment variables. Key variables include:
@@ -150,3 +152,12 @@ api/
 └── package.json
 ```
 
+## IoT Endpoints
+
+In this project two IoT device were integrated for testing purposes. The whole logic is found in the [Adapters](./src/adapters)
+
+The goals of the implemented .js files are the following:
+
+- [DeviceAdapters](./src/adapters/DeviceAdapters.js): The Device Adapter is a simple if-else logic used to determine which device to interact with based on the device's URL.
+- [CameraAdapter](./src/adapters/CameraAdapter.js): This adapter only contains the logic specific to a request for the camera.
+- [HueLampAdapter](./src/adapters/HueLampAdapter.js): This adapter only contains the logic specific to a request for the HueLamp.
