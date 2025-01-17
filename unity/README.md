@@ -1,102 +1,127 @@
 
-# MatchingService
+# Unity HoloLens 2 Application with MRTK3
 
-The `matchingservice` is a microservice designed to interact with `dataservice`, fetch privacy policy and Thing Description (TD) data, and analyze the TD actions based on privacy mappings. It is triggered by a POST request that includes a `DATASERVICE_URL`, which is used to fetch the necessary data and conduct an analysis based on privacy regulations.
+The Unity Application serves as the frontend for our backend application. Furthermore, this application receives JSON structured data of possible actions and present it to the user. The hololens user chooses an action he wants to disable and the backend scripts send the request to the backend. After completion of the action on the corresponding device, a script polls the backend for completed actions and notify the user through the popup.
 
 ## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Environment Variables](#environment-variables)
-- [Docker Configuration](#docker-configuration)
+- [Steps](#Steps)
+- [Communication](#communication)
 - [Directory Structure](#directory-structure)
-- [Example Request](#example-request)
-- [License](#license)
+- [Implemented Unity Parts](#implemented-unity-parts-in-assets)
 
-## Installation
+## Steps
+1. Clone the Repository
 
-To install the necessary dependencies, navigate to the `matchingservice` directory and run:
+   ```bash
+   git clone https://github.com/Interactions-HSG/2024-IMP-RightToPrivacyInMR.git
+   cd 2024-IMP-RightToPrivacyInMR/Unity
+   ```
 
-```bash
-npm install
-```
 
-## Usage
+2. Open the Project in Unity 
+   - Ensure you have Unity 2022.x.x (or compatible version) installed. This project was built with Editor Version: 2022.3.49f1
+   - Open Unity Hub and select the Add button.
+   - Navigate to the cloned folder and select it as a project.
 
-To start the service locally, run:
 
-```bash
-node app.js
-```
+3. Set Up MRTK3: If MRTK3 is not already configured, follow these steps:
 
-This will start the server on the port specified in `.env` or default to port `3001`.
+   - Install the MRTK3 packages via the Unity Package Manager.
+   - Check the project settings to ensure MRTK3 components are properly set up for your target platform (e.g., HoloLens).
 
-## API Endpoints
 
-The `matchingservice` provides the following endpoint:
+4. Run the Project
+   - Go to Mixed > Remoting > Holographic Remoting for Play mode
+   - Enter the IP-address of the Hololens
+   - Enable the Holographic Remoting
+   - Start Application by pressing play button on top of the Editor
 
-- **Analyze Device**
-    - **URL:** `POST /api/analyze-device`
-    - **Description:** Analyzes TD actions based on privacy policies.
-    - **Request Body**:
-        - `DATASERVICE_URL`: URL of the `dataservice` to fetch the TD and privacy policy.
-    - **Response**:
-        - Returns an array of actions with attributes like `actionType`, `humanReadableAction`, `dpvMapping`, and `actionId`.
 
-## Environment Variables
+## Communication
 
-`matchingservice` uses a `.env` file to define its environment variables. Key variables include:
+The `Unity Application` communicates to the backend through with this request:
 
-- `PORT`: Specifies the port on which the service will run (default: `3001`).
+- **ActionsPoll**
+    - **URL:** `GET http://localhost:8090/api/getActions/fetchDataForHololens`
+    - **Description:** Fetches action data from the backend, processes it into a cumulative list, and updates the HoloLens UI via the `UIManager`.
+    - **Request Body:** None.
+    - **Response:**
+        - **200 OK:**
+            - A JSON object containing an `analysis` array of action data.
+            - Each action includes fields like `actionId`, `title`, `description`, `dataservice_url`, and the corresponding `dpv fields`.
+        - **Error:** Logs errors in Unity if the request fails or data is invalid.
 
-## Docker Configuration
 
-The service is designed to run in a Docker container. Below is an example `docker-compose` configuration:
+- **ActionSender**
+    - **URL:** `POST http://localhost:8090/api/executeActions/data`
+    - **Description:** Sends action data to the backend for execution. The data is formatted as JSON and transmitted via a POST request.
+    - **Request Body:**
+        - A JSON object containing the action data. Fields depend on the structure of the `ActionData` object.
+    - **Response:**
+        - **200 OK:**
+            - Confirmation that the action was received and processed by the backend.
+            - Response body may include additional status information.
+        - **Error:** Logs an error in Unity if the request fails or the backend is unreachable.
 
-```yaml
-matchingservice:
-  build: ./matchingservice
-  depends_on:
-    - dataservice
-  ports:
-    - "8085:8085" # Expose matchingservice on port 8085
-  networks:
-    - imp-network
-```
+
+- **ActionsExecutedPoll**
+    - **URL:** `GET http://localhost:8090/api/checkActionsStatus/completedActions`
+    - **Description:** Polls the backend for the status of executed actions, processes the received data, and updates the HoloLens UI. Ensures that already processed actions are not duplicated.
+    - **Request Body:** None.
+    - **Response:**
+        - **200 OK:**
+            - A JSON object containing an array of executed actions.
+            - Each action includes fields like:
+                - `actionId` (string): Unique identifier for the action.
+                - `title` (string): Title of the executed action.
+                - `humanReadableAction` (string): Human-readable description of the action.
+                - `status` (string): Status of the executed action.
+        - **Error:** Logs an error in Unity if the request fails or no valid actions are received.
+
 
 ## Directory Structure
 
 ```plaintext
-matchingservice/
+unity/
 ├── src/
-│   ├── controllers/
-│   │   └── deviceController.js
-│   ├── routes/
-│   │   └── matchingRoutes.js
-│   ├── services/
-│   │   ├── thingDescriptionService.js
-│   │   └── analysisService.js
-│   ├── helpers/
-│   │   ├── policyParser.js
-│   │   └── tdParser.js
-├── .env
-├── Dockerfile
-├── app.js
-└── package.json
+│   ├── .plastic/
+│   ├── Assets/
+│   │   ├── BackendScripts/
+│   │   └── Prefabs/
+│   ├── Packages/
+│   ├── ProjectSettings/
+├── .gitignore
+├── .vsconfig
+├── README.md
+├── ignore.conf
+└── packages.config
 ```
 
-## Example Request
+## Implemented Unity Parts in /Assets
 
-To trigger analysis, send a POST request to `http://localhost:8085/api/analyze-device` with `DATASERVICE_URL` in the request body:
+### Scripts
+- [ActionDisplayUI.cs](./Assets/BackendScripts/): 
+- [ActionSender.cs](./Assets/BackendScripts/ActionSender.cs)
+- [ActionSenderData.cs](./Assets/BackendScripts/ActionSenderData.cs) Data Serializer for the ActionSender
+- [ActionsPoll.cs](./Assets/BackendScripts/ActionsPoll.cs)
+- [ActionsPollData.cs](./Assets/BackendScripts/ActionsPollData.cs) Data Deserializer for the ActionsPoll
+- [ActionsExecutedPoll.cs](./Assets/BackendScripts/ActionsExecutedPoll.cs)
+- [ActionsExecutedPollData.cs](./Assets/BackendScripts/ActionsExecutedPollData.cs) Data Deserializer for the ActionsExecutedPoll
+- [ActionDataCard.cs](./Assets/ActionDataCard.cs)
+- [PopUpController.cs](./Assets/PopUpController.cs)
+- [UIManager.cs](./Assets/UIManager.cs): 
+- [BackendManager.cs](./Assets/BackendScripts/BackendManager.cs)
 
-```bash
-curl -X POST http://localhost:8085/api/analyze-device \
-  -H "Content-Type: application/json" \
-  -d '{
-        "DATASERVICE_URL": "http://dataservice:8084"
-      }'
-```
 
-## License
+### UI-Elements in SampleScene as Gameobjects
 
-This project is licensed under the MIT License.
+- **ContainerListDevices**: This container holds the base canvas for the list of all possible actions, the actions itself will be created by the [DiscoveredActionswithScript.prefab](#prefabs)
+- **ContainerStart**: This container holds UI elements for the start canvas.
+- **ContainerLoadingDevices**: This container is used as a loading canvas placeholder, till the backend has processed the data.
+- **ContainerPopUp**: This holds UI elemenents for different notifications which will be shown as popups.
+
+
+### Prefabs
+- [DiscoveredActionswithScript.prefab](./Assets/Prefabs/DiscoveredActionswithScript.prefab): This prefab is used for visualize each action on the ContainerListDevices element.
+
+
