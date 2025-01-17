@@ -1,0 +1,138 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    {
+      "dpv": "https://w3id.org/dpv#"
+    }
+  ],
+  "title": "HikvisionCamera",
+  "description": "A simple hikvision camera with basic functionality such as viewing properties, taking snapshots, and detecting motion.",
+  "securityDefinitions": {
+    "basic_sc": {
+      "scheme": "basic",
+      "in": "header"
+    }
+  },
+  "security": ["basic_sc"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "description": "Current status of the camera (on, off, standby).",
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "https://example.com/camera/properties/status",
+          "contentType": "application/json",
+          "op": "readproperty"
+        }
+      ]
+    },
+    "brightness": {
+      "type": "number",
+      "description": "Current brightness setting of the camera.",
+      "minimum": 0,
+      "maximum": 100,
+      "readOnly": false,
+      "forms": [
+        {
+          "href": "https://example.com/camera/properties/brightness",
+          "contentType": "application/json",
+          "op": ["readproperty", "writeproperty"]
+        }
+      ]
+    }
+  },
+  "actions": {
+    "muteAudio": {
+      "description": "Mute the audio recording of the camera",
+      "output": {
+        "type": "string",
+        "description": "Url of audio recording api",
+        "dpv:PersonalData": {
+          "dpv:hasPersonalData": [
+            {
+              "dpv:DataSubject": "Guests",
+              "dpv:PersonalDataType": "Audio"
+            }
+          ]
+        },
+        "dpv:hasPurpose": "dpv:Security",
+        "dpv:hasLegalBasis": [
+          "dpv:LegitimateInterest",
+          "dpv:Consent"
+        ]
+      },
+      "forms": [
+        {
+          "href": "http://192.168.1.64/ISAPI/Streaming/channels/101",
+          "contentType": "application/xml",
+          "op": "invokeaction",
+          "htv:methodName":"PUT",
+          "dpv:Processing": {
+            "dpv:hasProcessing": [
+              "dpv:Collect",
+              "dpv:Store",
+              "dpv:Transmit"
+            ]
+          },
+          "dpv:DataController": "AirbnbOwner",
+          "dpv:DataProcessor": "CloudServiceProvider"
+        }
+      ]
+    },
+    "stopRecording": {
+      "description": "Stops the manual recording on the specified track.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "trackId": {
+            "type": "integer",
+            "description": "The ID of the track to stop recording."
+          }
+        },
+        "required": ["trackId"]
+      },
+      "output": {
+        "type": "string",
+        "description": "Confirmation message for stopping the recording."
+      },
+      "forms": [
+        {
+          "href": "http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/1",
+          "contentType": "application/xml",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "data": {
+            "ManualRecordStop": {
+              "id": "{trackId}"
+            }
+          },
+          "curlExample": "curl --digest --user \"hololens:your_password\" --request POST 'http://192.168.1.64/ISAPI/ContentMgmt/record/control/manual/stop/tracks/{trackId}' --header 'Content-Type: application/xml' --data '<?xml version=\"1.0\" encoding=\"UTF-8\"?><ManualRecordStop><id>{trackId}</id></ManualRecordStop>'"
+        }
+      ]
+    },
+    "turnOffCamera": {
+      "description": "Turns off the camera",
+      "input": null,
+      "output": {
+        "type": "string",
+        "description": "Confirmation message indicating the camera has been turned off or streaming stopped."
+      },
+      "forms": [
+        {
+          "href": "http://192.168.1.64/ISAPI/Streaming/channels/101",
+          "contentType": "application/xml",
+          "op": "invokeaction",
+          "htv:methodName": "PUT",
+          "data": {
+            "StreamingChannel": {
+              "id": 101,
+              "enabled": false
+            }
+          },
+          "curlExample": "curl --digest --user \"hololens:your_password\" --request PUT 'http://192.168.1.64/ISAPI/Streaming/channels/101' --header 'Content-Type: application/xml' --data '<?xml version=\"1.0\" encoding=\"UTF-8\"?><StreamingChannel><id>101</id><enabled>false</enabled></StreamingChannel>'"
+        }
+      ]
+    }
+  }
+}

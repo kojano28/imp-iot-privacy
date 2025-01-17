@@ -1,0 +1,19 @@
+@prefix ex: <http://example.org/> .
+@prefix dpv: <http://www.w3.org/ns/dpv#> .
+
+ex:HueLampPrivacyPolicy a dpv:PrivacyPolicy ;
+    dpv:process "ControlLighting" ;
+    dpv:processing "dpv:Use" ;
+    dpv:dataController "ex:HueLampCompany" ;
+    dpv:hasLegalBasis "dpv:Consent" ;
+    dpv:hasPurpose "dpv:AmbientLighting" ;
+    dpv:hasPersonalData [
+        dpv:PersonalDataCategory "LightingPreferences" ;
+        dpv:DataSubject "HomeUsers"
+    ] ;
+    dpv:hasPersonalData [
+        dpv:PersonalDataCategory "UsageLogs" ;
+        dpv:DataSubject "DeviceOwners"
+    ] ;
+    dpv:hasPurpose "dpv:EnergyEfficiency" ;
+    dpv:hasLegalBasis "dpv:LegitimateInterest" .

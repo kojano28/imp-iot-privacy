@@ -1,0 +1,68 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    {
+      "dpv": "http://www.w3.org/ns/dpv#"
+    }
+  ],
+  "id": "urn:dev:ops:32473-HueLamp",
+  "title": "HueLamp",
+  "base": "http://huelamp.local/",
+  "description": "A smart lamp with adjustable color and brightness settings.",
+  "security": [
+    {
+      "scheme": "nosec"
+    }
+  ],
+  "properties": {
+    "brightness": {
+      "type": "integer",
+      "description": "The current brightness level.",
+      "minimum": 0,
+      "maximum": 100,
+      "readOnly": false,
+      "forms": [
+        {
+          "href": "/properties/brightness",
+          "contentType": "application/json",
+          "op": ["readproperty", "writeproperty"]
+        }
+      ]
+    },
+    "color": {
+      "type": "string",
+      "description": "The current color of the lamp.",
+      "enum": ["red", "green", "blue", "white"],
+      "readOnly": false,
+      "forms": [
+        {
+          "href": "/properties/color",
+          "contentType": "application/json",
+          "op": ["readproperty", "writeproperty"]
+        }
+      ]
+    }
+  },
+  "actions": {
+    "turnOff": {
+      "description": "Turns off the lamp.",
+      "input": null,
+      "output": {
+        "type": "string",
+        "description": "Confirmation message indicating the lamp is turned off."
+      },
+      "forms": [
+        {
+          "href": "http://IP/api/APIKEY/lights/4/state",
+          "contentType": "application/json",
+          "op": "invokeaction",
+          "htv:methodName": "PUT",
+          "data": {
+            "on": false
+          },
+          "curlExample": "curl --location --request PUT 'http://IP/api/APIKEY/lights/4/state' --header 'Content-Type: application/json' --data '{\"on\": false}'"
+        }
+      ]
+    }
+  }
+}

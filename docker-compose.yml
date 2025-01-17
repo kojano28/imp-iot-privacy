@@ -1,0 +1,28 @@
+#version: "4.29.0"
+
+services:
+  matchingservice:
+    build: ./matchingservice # Path to Dockerfile
+    ports:
+      - "8082:8082"
+    networks:
+      - imp-network
+
+  api:
+    build: ./api # Path to Dockerfile
+    ports:
+      - "8090:8090"
+    networks:
+      - imp-network
+
+
+  dataservice:
+    build: ./dataservice # Path to Dockerfile
+    ports:
+      - "8084:8084"
+    networks:
+      - imp-network
+
+networks:
+  imp-network:
+    driver: bridge
