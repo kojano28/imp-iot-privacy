@@ -147,7 +147,7 @@ The `docker-compose.yml` file defines the services:
 
 ```
 /project-root
-├── /appendix               # Unity project files
+├── /archive                # Project Related Data
 ├── /docker                 # Docker-related configuration
 │   ├── Dockerfile
 │   └── docker-compose.yml

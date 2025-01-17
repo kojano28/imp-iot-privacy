@@ -11,7 +11,6 @@ The `matchingservice` is a microservice designed to interact with `dataservice`,
 - [Docker Configuration](#docker-configuration)
 - [Directory Structure](#directory-structure)
 - [Example Request](#example-request)
-- [License](#license)
 
 ## Installation
 
@@ -101,6 +100,3 @@ curl --location 'http://localhost:8082/api/analyze-device' \
       }'
 ```
 
-## License
-
-This project is licensed under the MIT License.
