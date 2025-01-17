@@ -58,7 +58,7 @@ Key components:
     - Configure endpoint of api call after detection
       ```yaml
       HOLO_ENDPOINT: True
-      HOLO_ENDPOINT_URL: 'http://<your-server-ip>:8082/api/analyze-device'
+      HOLO_ENDPOINT_URL: 'http://<your-server-ip>:8082/api/analyze-device' @TODO 
       ```
 5. Start detecting IoT devices with Hololens 2 :)
 
@@ -73,47 +73,6 @@ Key components:
 
 3. **Privacy Compliance**:
     - The backend ensures compliance by retrieving and analyzing the privacy policy of each IoT device before executing any action.
-
----
-
-## API Endpoints
-
-### Base URL
-`http://<your-server-ip>:<port>/api`
-
-### Endpoints
-- **GET /devices**
-    - Retrieves a list of discovered IoT devices.
-    - **Response**:
-      ```json
-      [
-        {
-          "name": "Camera 1",
-          "type": "camera",
-          "status": "online"
-        },
-        ...
-      ]
-      ```
-
-- **POST /action**
-    - Executes a specific action on an IoT device.
-    - **Request**:
-      ```json
-      {
-        "deviceId": "12345",
-        "action": "turnOff"
-      }
-      ```
-
-- **GET /privacy-policy/{deviceId}**
-    - Retrieves the privacy policy for a specific device.
-    - **Response**:
-      ```json
-      {
-        "policy": "This device collects video and audio data..."
-      }
-      ```
 
 ---
 
@@ -160,28 +119,6 @@ The `docker-compose.yml` file defines the services:
 
 ---
 
-## Example Request
-
-### Device Discovery
-**Request**:
-```bash
-curl -X GET http://<your-server-ip>:5000/api/devices
-```
-**Response**:
-```json
-[
-  {
-    "name": "Smart Lamp",
-    "type": "lamp",
-    "status": "online"
-  },
-  {
-    "name": "Security Camera",
-    "type": "camera",
-    "status": "offline"
-  }
-]
-```
 
 ---
 
@@ -189,6 +126,7 @@ curl -X GET http://<your-server-ip>:5000/api/devices
 - Support for more complex device actions.
 - Improved UX design for broader user preferences.
 - Automated privacy policy analysis using large language models (LLMs).
+- Automated Crawling of IoT devices in the network
 
 ---
 

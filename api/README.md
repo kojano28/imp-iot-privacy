@@ -1,5 +1,5 @@
 
-# API service
+# MatchingService
 
 The `api` service is a microservice designed to interact with the hololens, IoT devices and with the backend. First, this service receives the URLs from the detected devices and triggers the matchingservice for analysis. After the analysis the JSON will be received and stored in memory and the data is ready for the hololens to request it. If the user chooses an action to disable the api service handles this frontend requet and start an interaction with the IoT devices. After the action has been executed, the action will be stored in an in-memory storage and the hololens could retrieve it on request.
 
@@ -11,7 +11,6 @@ The `api` service is a microservice designed to interact with the hololens, IoT 
 - [Docker Configuration](#docker-configuration)
 - [Directory Structure](#directory-structure)
 - [Example Request](#example-request)
-
 
 ## Installation
 
@@ -45,7 +44,6 @@ The `api` service provides the following endpoints:
         - **200 OK**:
             - `status` (string): Confirmation that the data has been stored and a temporary copy has been created for HoloLens.
 
-
 - **FetchDataForHololens**
     - **URL:** `GET /api/getActions/fetchDataForHololens`
     - **Description:** Allows the HoloLens to retrieve temporarily stored data. If data is available, it is sent and then cleared. If no data is available, an empty response is returned.
@@ -56,7 +54,6 @@ The `api` service provides the following endpoints:
             - Returns the stored data as a JSON object.
         - **204 No Content**:
             - Indicates no temporary data is available for retrieval.
-
 
 - **HandleFrontendPost**
     - **URL:** `POST /api/executeActions/data`
@@ -84,7 +81,6 @@ The `api` service provides the following endpoints:
             - `message` (string): Confirmation that all IP addresses were forwarded successfully.
         - **400 Bad Request**:
             - `error` (string): Error message indicating invalid or missing IP data.
-
 
 - **HandleActionsStatusRequests**
     - **URL:** `GET /api/checkActionsStatus/completedActions`

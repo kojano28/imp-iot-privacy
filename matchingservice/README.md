@@ -28,7 +28,7 @@ To start the service locally, run:
 node app.js
 ```
 
-This will start the server on the port specified in `.env` or default to port `3001`.
+This will start the server on the port specified in `.env` or default to port `8082`.
 
 ## API Endpoints
 
@@ -46,7 +46,7 @@ The `matchingservice` provides the following endpoint:
 
 `matchingservice` uses a `.env` file to define its environment variables. Key variables include:
 
-- `PORT`: Specifies the port on which the service will run (default: `3001`).
+- `PORT`: Specifies the port on which the service will run (default: `8082`).
 
 ## Docker Configuration
 
@@ -58,7 +58,7 @@ matchingservice:
   depends_on:
     - dataservice
   ports:
-    - "8085:8085" # Expose matchingservice on port 8085
+    - "8082:8082" # Expose matchingservice on port 8082
   networks:
     - imp-network
 ```
