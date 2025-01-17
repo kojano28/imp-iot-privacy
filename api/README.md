@@ -11,7 +11,6 @@ The `api` service is a microservice designed to interact with the hololens, IoT 
 - [Docker Configuration](#docker-configuration)
 - [Directory Structure](#directory-structure)
 - [Example Request](#example-request)
-- [License](#license)
 
 ## Installation
 
