@@ -1,0 +1,4 @@
+repository "iot_privacy@kojano28@cloud"
+  path "/"
+    br "/main"
+    co "/main"
