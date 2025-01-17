@@ -18,11 +18,11 @@ This project enables secure interaction and management of IoT devices, such as c
 
 ## Overview
 
-This project integrates Mixed Reality (using Unity and HoloLens 2) with IoT privacy management. It uses advanced features like BLEARVIS for object detection and privacy policy matching to enhance user interaction while ensuring compliance with privacy standards.
+This project integrates Mixed Reality (using Unity, MRTK3 and HoloLens 2) with IoT privacy management. It uses advanced features like BLEARVIS for object detection and privacy policy matching to enhance user interaction while ensuring compliance with privacy standards.
 
 ![System Overview](./images/system_overview.png)
 Key components:
-- **Unity/HoloLens 2**: Provides the Mixed Reality interface, including video streams
+- **Unity/HoloLens 2**: Provides the Mixed Reality interface, which is based on Mixed Reality Toolkit 3(MRTK3), including video streams
 - **BLEARVIS ObjectDetection**: Layers video stream with object detection and sends api call to `api` service running on docker
 - **Dockerized Backend**: Handles data services, API communication, and matching services.
 - **IoT Devices**: Interfaces with IoT devices, provides Thing Descriptions (TD), and privacy policies.
@@ -53,7 +53,7 @@ Key components:
     - Open the `MixedRealityProject` folder in Unity.
     - Deploy the app to HoloLens 2.
 
-4. Run BLEARVIS ObjectDetection with a trained model which detects the IOT devices:
+4. Run BLEARVIS ObjectDetection with a trained model which detects the IoT devices:
     - Use model in `/appendix/model/best_hue_hik.onnx` for detection of (Huelamp, HIKvision)
     - Configure endpoint of api call after detection
       ```yaml
